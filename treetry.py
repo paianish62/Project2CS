@@ -7,7 +7,7 @@ class Tree:
 
     def is_empty(self) -> bool:
         return self._root is None
-# hi
+# hi ravit
     def add_country(self, criteria_path: List[str], country: str):
         if not criteria_path:
             self._subtrees.append(Tree(country))
