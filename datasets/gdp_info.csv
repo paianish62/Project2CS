@@ -1,5 +1,4 @@
-Index Number ,Rank,Country/Economy,GDP (millions of $),Agriculture GDP,,,Industry,,,Services,,,Year GDP ,Year Sector
-,,,,GDP,Rank,% of GDP,GDP,Rank,% of GDP,GDP,Rank,% of GDP,,
+Index Number,Rank,Country/Economy,GDP (millions of $),Agriculture GDP,-,Agriculture % of GDP,Industry,-,Industry % of GDP,Services,-,Services % of GDP,Year GDP,Year Sector
 0,1,United States,19360000,174240,3,0.9,3659040,2,18.9,15526720,1,80.2,2017,2017
 1,2,China,11940000,991020,1,8.3,4716300,1,39.5,6232680,2,52.2,2017,2017
 2,3,Japan,4884000,48840,13,1,1450548,3,29.7,3384612,3,69.3,2017,2017
