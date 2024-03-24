@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Any, Optional
+from typing import Any, Optional, List
 class Tree:
     def __init__(self, root: Optional[Any] = None, subtrees: List[Tree] = None) -> None:
         self._root = root
