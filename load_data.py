@@ -163,4 +163,8 @@ def extract_interest_time_series_data(csv_file_path, countries_of_interest, star
         filtered_df = filtered_df[columns_of_interest]
     return filtered_df.reset_index()
 
-print(extract_interest_time_series_data(interest_info_file, countries_of_interest))
+
+print(extract_sector_gdp_percentage(sector_info_file, countries_of_interest))
+
+# agr > 5, industry > 25, services > 50
+# sdg - rank trends from 20 to 100 (multiples of 20) - average trend and current score

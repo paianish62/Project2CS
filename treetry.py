@@ -1,5 +1,12 @@
 from __future__ import annotations
 from typing import Any, Optional, List
+import load_data
+
+# gdp_info = load_data.load_all_series(load_data.API_KEY, load_data.gdp_series_ids)
+# cpi_info = load_data.load_all_series(load_data.API_KEY, load_data.cpi_series_ids)
+# sectors_info = load_data.extract_sector_gdp_percentage(load_data.sector_info_file, load_data.countries_of_interest)
+# interest = load_data.extract_interest_time_series_data(load_data.interest_info_file, load_data.countries_of_interest)
+
 class Tree:
     def __init__(self, root: Optional[Any] = None, subtrees: List[Tree] = None) -> None:
         self._root = root
@@ -54,8 +61,8 @@ def ethical_score(priority: list[vars], goal_scores: list[int]) -> int:
     scores = {'env': environmental, 'equ': equitable, 'lab': labour_treatment}
     return (scores[priority[0]])*0.4 + (scores[priority[1]])*0.35 + (scores[priority[2]])*0.25
 
-def economics_score(indicator: list[])
-
+ list[])
+def economics_score(indicator:
 # List Contries & Data on interest raes and SDGS
 # for loop on the countries
 # CPI, Interest Rates, GDP
