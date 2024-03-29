@@ -59,9 +59,8 @@ def ethical_score(priority: list[str], goal_scores: list[int]) -> int:
     equitable = (goal_scores[5] + goal_scores[10] + goal_scores[16])/3
     labour_treatment = (goal_scores[1] + goal_scores[2] + goal_scores[3] + goal_scores[4] + goal_scores[6])/5
     scores = {'env': environmental, 'equ': equitable, 'lab': labour_treatment}
-    return (scores[priority[0]])*0.4 + (scores[priority[1]])*0.35 + (scores[priority[2]])*0.25
+    return (scores[priority[0]])*0.4 + (scores[priority[1]])*0.35 + (scores[priority[2]])*0.25)
 
- list[])
 def economics_score(indicator:
 # List Contries & Data on interest raes and SDGS
 # for loop on the countries
