@@ -53,7 +53,7 @@ print(tree.query(["Europe", "Developed", "Tertiary", "Long Run"]))
 (ii) Equity Score - 5, 10 and 16
 (iii) Fair Labour Treatment - 1, 2, 3, 4 and 6
 """
-def ethical_score(priority: list[vars], goal_scores: list[int]) -> int:
+def ethical_score(priority: list[str], goal_scores: list[int]) -> int:
     environmental = (goal_scores[7] + goal_scores[11] + goal_scores[12] + goal_scores[13] + goal_scores[14] +
                      goal_scores[15])/6
     equitable = (goal_scores[5] + goal_scores[10] + goal_scores[16])/3
@@ -67,3 +67,4 @@ def economics_score(indicator:
 # for loop on the countries
 # CPI, Interest Rates, GDP
 # Ethical Score = 0.4(1) + 0.3(2) + 0.2(3) + 0.1(
+#[equ, env, lab]
