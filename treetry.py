@@ -2,8 +2,8 @@ from __future__ import annotations
 from typing import Any, Optional, List
 import load_data
 
-# gdp_info = load_data.load_all_series(load_data.API_KEY, load_data.gdp_series_ids)
-# cpi_info = load_data.load_all_series(load_data.API_KEY, load_data.cpi_series_ids)
+gdp_info = load_data.load_all_series(load_data.API_KEY, load_data.gdp_series_ids)
+#cpi_info = load_data.load_all_series(load_data.API_KEY, load_data.cpi_series_ids)
 # sectors_info = load_data.extract_sector_gdp_percentage(load_data.sector_info_file, load_data.countries_of_interest)
 # interest = load_data.extract_interest_time_series_data(load_data.interest_info_file, load_data.countries_of_interest)
 
@@ -59,9 +59,31 @@ def ethical_score(priority: list[str], goal_scores: list[int]) -> int:
     equitable = (goal_scores[5] + goal_scores[10] + goal_scores[16])/3
     labour_treatment = (goal_scores[1] + goal_scores[2] + goal_scores[3] + goal_scores[4] + goal_scores[6])/5
     scores = {'env': environmental, 'equ': equitable, 'lab': labour_treatment}
-    return (scores[priority[0]])*0.4 + (scores[priority[1]])*0.35 + (scores[priority[2]])*0.25)
+    return (scores[priority[0]])*0.4 + (scores[priority[1]])*0.35 + (scores[priority[2]])*0.25
 
-def economics_score(indicator:
+
+def classify_long_term_investments(gdp_info):
+    """
+    Classify countries based on their average GDP growth rate from 1980 to 2019.
+
+    Parameters:
+    - gdp_info: dict, where each key is a country code and each value is a DataFrame with 'date' and 'value' columns.
+
+    Returns:
+    - A dictionary where each key is a country code and the value is a boolean indicating if it's suitable for long-term investment.
+    """
+    long_term_investment_countries = {}
+
+    for country, df in gdp_info.items():
+
+        period_df = df[(df['date'] >= 1980) & (df['date'] <= 2019)]
+        period_df['growth_rate'] = period_df['value'].pct_change() * 100
+        avg_growth_rate = period_df['growth_rate'].mean()
+        long_term_investment_countries[country] = avg_growth_rate > 2
+
+    return long_term_investment_countries
+
+#def economics_score(indicator:
 # List Contries & Data on interest raes and SDGS
 # for loop on the countries
 # CPI, Interest Rates, GDP
