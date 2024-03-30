@@ -7,7 +7,7 @@ app.geometry('630x800')
 app.columnconfigure(0, weight=1)
 app.columnconfigure(1, weight=3)
 app.columnconfigure(2, weight=1)
-#ravit
+#ravititititititit
 
 def show_output():
     """
