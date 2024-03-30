@@ -86,8 +86,8 @@ def help_func():
 
     :return:
     """
-    terms_dict = {'Economic Development Status': '', 'Industries': '', 'Developed': '', 'Emerging': '', 'Primary': '',
-                  'Secondary': '', 'Tertiary': '', 'Equity Score': '',
+    terms_dict = {'Economic Development Status': '', 'Sector': '', 'Developed': '', 'Emerging': '', 'Primary': '',
+                  'Secondary': '', 'Tertiary': '', 'Equity': '',
                   'Fair Labour Treatment': ''}
     if help_combo.get() == 'Select':
         messagebox.showinfo(
@@ -140,17 +140,17 @@ dev_combo.set('Status')
 dev_combo.grid(row=8, column=1, sticky='nwse', padx=(18, 100), pady=(5, 0))
 
 # Industries
-ind_title_text = 'Industries*'
+ind_title_text = 'Sector*'
 ind_title = ttk.Label(master=app, text=ind_title_text, font='Arial 20 bold',  padding=(20, 20, 0, 0))
 ind_title.grid(row=9, column=1, sticky='nw')
 
-ind_subtitle_text = 'Which industries are of interest to you for potential investment?'
+ind_subtitle_text = 'Which sectors are of interest to you for potential investment?'
 ind_subtitle = ttk.Label(master=app, text=ind_subtitle_text, font=('Arial', 12, 'italic'),  padding=(20, 5, 0, 0))
 ind_subtitle.grid(row=10, column=1, sticky='nw')
 
 ind_values = ['Primary', 'Secondary', 'Tertiary']
 ind_combo = ttk.Combobox(master=app, values=ind_values, state='readonly')
-ind_combo.set('Industry')
+ind_combo.set('Sector')
 ind_combo.grid(row=11, column=1, sticky='nwse', padx=(18, 100), pady=(5, 0))
 
 # Ethical Priority
@@ -196,8 +196,8 @@ submit.grid(row=17, column=1, sticky='nswe', padx=(20, 100), pady=(20, 0))
 help_text = 'Any term you do not understand? please select it and press the Help button'
 help_subtitle = ttk.Label(master=app, text=help_text, font=('Arial', 13),  padding=(20, 25, 0, 0))
 help_subtitle.grid(row=18, column=1, sticky='nw')
-terms = ['Economic Development Status', 'Industries', 'Developed', 'Emerging', 'Primary', 'Secondary',
-         'Tertiary', 'Equity Score', 'Fair Labour Treatment']
+terms = ['Economic Development Status', 'Sector', 'Developed', 'Emerging', 'Primary', 'Secondary',
+         'Tertiary', 'Equity', 'Fair Labour Treatment']
 help_combo = ttk.Combobox(master=app, values=terms, state='readonly', width=37)
 help_combo.set('Select')
 help_combo.grid(row=19, column=1, sticky='nw', padx=(18, 100), pady=(5, 0))
