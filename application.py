@@ -8,7 +8,7 @@ app.columnconfigure(0, weight=1)
 app.columnconfigure(1, weight=3)
 app.columnconfigure(2, weight=1)
 
-#trying
+
 def submit_func():
     """
     abcd
