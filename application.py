@@ -87,7 +87,7 @@ def help_func():
     :return:
     """
     terms_dict = {'Economic Development Status': '', 'Industries': '', 'Developed': '', 'Emerging': '', 'Primary': '',
-                  'Secondary': '', 'Tertiary': '', 'Environment': '', 'Equity Score': '',
+                  'Secondary': '', 'Tertiary': '', 'Equity Score': '',
                   'Fair Labour Treatment': ''}
     if help_combo.get() == 'Select':
         messagebox.showinfo(
@@ -196,8 +196,8 @@ submit.grid(row=17, column=1, sticky='nswe', padx=(20, 100), pady=(20, 0))
 help_text = 'Any term you do not understand? please select it and press the Help button'
 help_subtitle = ttk.Label(master=app, text=help_text, font=('Arial', 13),  padding=(20, 25, 0, 0))
 help_subtitle.grid(row=18, column=1, sticky='nw')
-terms = ['Region', 'Economic Development Status', 'Industries', 'Developed', 'Emerging', 'Primary', 'Secondary',
-         'Tertiary', 'Environment', 'Equity Score', 'Fair Labour Treatment']
+terms = ['Economic Development Status', 'Industries', 'Developed', 'Emerging', 'Primary', 'Secondary',
+         'Tertiary', 'Equity Score', 'Fair Labour Treatment']
 help_combo = ttk.Combobox(master=app, values=terms, state='readonly', width=37)
 help_combo.set('Select')
 help_combo.grid(row=19, column=1, sticky='nw', padx=(18, 100), pady=(5, 0))
