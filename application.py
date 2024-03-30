@@ -9,6 +9,17 @@ app.columnconfigure(1, weight=3)
 app.columnconfigure(2, weight=1)
 
 
+def show_output():
+    """
+    abcd
+    :return:
+    """
+    output = tk.Toplevel()
+    output.title('Global Investment Recommender System')
+    output.geometry('630x800')
+    output.mainloop()
+
+
 def submit_func():
     """
     abcd
@@ -66,6 +77,27 @@ def submit_func():
         messagebox.showinfo(
             title='Submitted',
             message='Form successfully submitted'
+        )
+        # show_output()
+
+
+def help_func():
+    """
+
+    :return:
+    """
+    terms_dict = {'Economic Development Status': '', 'Industries': '', 'Developed': '', 'Emerging': '', 'Primary': '',
+                  'Secondary': '', 'Tertiary': '', 'Environment': '', 'Equity Score': '',
+                  'Fair Labour Treatment': ''}
+    if help_combo.get() == 'Select':
+        messagebox.showinfo(
+            title='No Term Selected',
+            message='Please select a term from the dropdown menu'
+        )
+    else:
+        messagebox.showinfo(
+            title=help_combo.get(),
+            message=help_combo.get()+' means: '+terms_dict[help_combo.get()]
         )
 
 
@@ -169,7 +201,7 @@ terms = ['Region', 'Economic Development Status', 'Industries', 'Developed', 'Em
 help_combo = ttk.Combobox(master=app, values=terms, state='readonly', width=37)
 help_combo.set('Select')
 help_combo.grid(row=19, column=1, sticky='nw', padx=(18, 100), pady=(5, 0))
-help_btn = ttk.Button(master=app, text='Help')
+help_btn = ttk.Button(master=app, text='Help', command=help_func)
 help_btn.grid(row=19, column=1, sticky='ne', padx=(20, 100), pady=(5, 0))
 
 app.mainloop()
