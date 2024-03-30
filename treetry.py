@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import Any, Optional, List
 import load_data
 
-#gdp_info = load_data.load_all_series(load_data.API_KEY, load_data.gdp_series_ids)
+gdp_info = load_data.load_all_series(load_data.API_KEY, load_data.gdp_series_ids)
 #cpi_info = load_data.load_all_series(load_data.API_KEY, load_data.cpi_series_ids)
 #sectors_info = load_data.extract_sector_gdp_percentage(load_data.sector_info_file, load_data.countries_of_interest)
 #interest = load_data.extract_interest_time_series_data(load_data.interest_info_file, load_data.countries_of_interest)
@@ -60,7 +60,7 @@ def ethical_score(priority: list[str], goal_scores: list[int]) -> int:
     labour_treatment = (goal_scores[1] + goal_scores[2] + goal_scores[3] + goal_scores[4] + goal_scores[6])/5
     scores = {'env': environmental, 'equ': equitable, 'lab': labour_treatment}
     return (scores[priority[0]])*0.4 + (scores[priority[1]])*0.35 + (scores[priority[2]])*0.25
-
+#edit to include trends
 
 def classify_long_term_investments(gdp_info):
     """
@@ -135,7 +135,7 @@ def calculate_economic_performance(gdp_info, cpi_info, interest_info, sdg8_score
         normalized_interest_rate = 100 - normalize_series(period_interest_df['value'].mean())
 
         #SDG
-        sdg8_score = sdg8_scores[country]
+        sdg8_score = sdg8_scores[country][7]
 
         economic_score = (normalized_gdp_growth * 0.4) + \
                          (normalized_cpi_inflation * 0.2) + \
@@ -174,7 +174,7 @@ def add_countries_to_tree(tree: Tree, country_info_df, sectors_info, gdp_info, s
         ethical_category = 'Good' if ethical_score(priority, sdg) >= 50 else 'Bad'
 
         investment_term = 'Long Run' if country in long_term_investment_countries else 'Short Run'
-
+#short run function
         country_sectors = sectors_map.get(country, [])
 
         for sector in country_sectors:
@@ -183,6 +183,7 @@ def add_countries_to_tree(tree: Tree, country_info_df, sectors_info, gdp_info, s
                                  country)
                 tree.add_country([region, development_status, sector, 'Short Run', ethical_category],
                                  country)
+#modify to include sr
             else:
                 tree.add_country([region, development_status, sector, 'Short Run', ethical_category],
                                  country)
@@ -198,3 +199,9 @@ def add_countries_to_tree(tree: Tree, country_info_df, sectors_info, gdp_info, s
 # CPI, Interest Rates, GDP
 # Ethical Score = 0.4(1) + 0.3(2) + 0.2(3) + 0.1(
 #[equ, env, lab]
+
+#Additional Stuff:
+#Post Covid measurement
+#Short Run, create function and change the three creating function
+#Change ethical score (qualitative trends, score 1-100)
+#Optional Test file with mini-datasets for doctest
