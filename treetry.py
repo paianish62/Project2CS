@@ -67,19 +67,19 @@ def classify_long_term_investments(gdp_info):
     Classify countries based on their average GDP growth rate from 1980 to 2019.
 
     Parameters:
-    - gdp_info: dict, where each key is a country code and each value is a DataFrame with 'date' and 'value' columns.
+    - gdp_info: pandas data frame
 
     Returns:
-    - A dictionary where each key is a country code and the value is a boolean indicating if it's suitable for long-term investment.
+    - A list of country codes suitable for long-term investment.
     """
-    long_term_investment_countries = {}
+    long_term_investment_countries = []
 
     for country, df in gdp_info.items():
-
-        period_df = df[(df['date'] >= 1980) & (df['date'] <= 2019)]
+        period_df = df[(df['date'] >= 1980) & (df['date'] <= 2019)].copy()
         period_df['growth_rate'] = period_df['value'].pct_change() * 100
         avg_growth_rate = period_df['growth_rate'].mean()
-        long_term_investment_countries[country] = avg_growth_rate > 2
+        if avg_growth_rate > 2:
+            long_term_investment_countries.append(country)
 
     return long_term_investment_countries
 
