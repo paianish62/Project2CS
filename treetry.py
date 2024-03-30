@@ -2,10 +2,10 @@ from __future__ import annotations
 from typing import Any, Optional, List
 import load_data
 
-gdp_info = load_data.load_all_series(load_data.API_KEY, load_data.gdp_series_ids)
+#gdp_info = load_data.load_all_series(load_data.API_KEY, load_data.gdp_series_ids)
 #cpi_info = load_data.load_all_series(load_data.API_KEY, load_data.cpi_series_ids)
-# sectors_info = load_data.extract_sector_gdp_percentage(load_data.sector_info_file, load_data.countries_of_interest)
-# interest = load_data.extract_interest_time_series_data(load_data.interest_info_file, load_data.countries_of_interest)
+#sectors_info = load_data.extract_sector_gdp_percentage(load_data.sector_info_file, load_data.countries_of_interest)
+#interest = load_data.extract_interest_time_series_data(load_data.interest_info_file, load_data.countries_of_interest)
 
 class Tree:
     def __init__(self, root: Optional[Any] = None, subtrees: List[Tree] = None) -> None:
@@ -82,6 +82,69 @@ def classify_long_term_investments(gdp_info):
             long_term_investment_countries.append(country)
 
     return long_term_investment_countries
+
+
+def map_countries_to_sectors(sectors_info):
+    """
+    Maps each country to the sectors it participates in based on a DataFrame.
+
+    Parameters:
+    - sectors_info: DataFrame with columns for country, industry, agriculture, and services,
+                    where each row corresponds to a country and boolean values indicate participation.
+
+    Returns:
+    - A dictionary where each key is a country and the value is a list of sectors it participates in.
+    """
+    sectors_map = {}
+    for index, row in sectors_info.iterrows():
+        sectors = []
+        if row['industry']:
+            sectors.append('industry')
+        if row['agriculture']:
+            sectors.append('agriculture')
+        if row['services']:
+            sectors.append('services')
+        sectors_map[row['Country/Economy']] = sectors
+
+    return sectors_map
+
+
+def normalize_series(series):
+    return 100 * (series - series.min()) / (series.max() - series.min())
+
+
+def calculate_economic_performance(gdp_info, cpi_info, interest_info, sdg8_scores):
+    economic_performance_scores = {}
+
+    for country, gdp_df in gdp_info.items():
+        #GDP
+        period_gdp_df = gdp_df[(gdp_df['date'] >= 1980) & (gdp_df['date'] <= 2019)].copy()
+        period_gdp_df['growth_rate'] = period_gdp_df['value'].pct_change().fillna(0)
+        normalized_gdp_growth = normalize_series(period_gdp_df['growth_rate'].mean())
+
+        #Inflation
+        period_cpi_df = cpi_info[country]
+        period_cpi_df = period_cpi_df[(period_cpi_df['date'] >= 1980) & (period_cpi_df['date'] <= 2019)].copy()
+        period_cpi_df['inflation_rate'] = period_cpi_df['value'].pct_change().fillna(0)
+        normalized_cpi_inflation = 100 - normalize_series(period_cpi_df['inflation_rate'].mean())
+
+        #Interest rates
+        period_interest_df = interest_info[country]
+        period_interest_df = period_interest_df[
+            (period_interest_df['date'] >= 1980) & (period_interest_df['date'] <= 2019)].copy()
+        normalized_interest_rate = 100 - normalize_series(period_interest_df['value'].mean())
+
+        #SDG
+        sdg8_score = sdg8_scores[country]
+
+        economic_score = (normalized_gdp_growth * 0.4) + \
+                         (normalized_cpi_inflation * 0.2) + \
+                         (normalized_interest_rate * 0.2) + \
+                         (sdg8_score * 0.2)
+
+        economic_performance_scores[country] = economic_score
+
+    return economic_performance_scores
 
 #def economics_score(indicator:
 # List Contries & Data on interest raes and SDGS
