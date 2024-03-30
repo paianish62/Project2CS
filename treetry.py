@@ -99,11 +99,11 @@ def map_countries_to_sectors(sectors_info):
     for index, row in sectors_info.iterrows():
         sectors = []
         if row['industry']:
-            sectors.append('industry')
+            sectors.append('Secondary')
         if row['agriculture']:
-            sectors.append('agriculture')
+            sectors.append('Primary')
         if row['services']:
-            sectors.append('services')
+            sectors.append('Tertiary')
         sectors_map[row['Country/Economy']] = sectors
 
     return sectors_map
@@ -145,6 +145,52 @@ def calculate_economic_performance(gdp_info, cpi_info, interest_info, sdg8_score
         economic_performance_scores[country] = economic_score
 
     return economic_performance_scores
+
+
+def add_countries_to_tree(tree: Tree, country_info_df, sectors_info, gdp_info, sdg, priority):
+    """
+    Iterates over all countries and adds them to the tree based on various criteria.
+
+    Parameters:
+    - tree: An instance of the Tree class to which countries will be added.
+    - country_info_df: DataFrame with columns for country name, emerging/developed, and region.
+    - sectors_info: DataFrame with information about which sectors countries participate in.
+    - gdp_info: DataFrame with GDP growth rate information for classification of long/short run.
+    - sdg: List containing SDG scores for countries.
+    - priority: List containing priority areas for ethical scoring.
+
+    The function does not return anything, but it updates the tree in place.
+    """
+
+    long_term_investment_countries = classify_long_term_investments(gdp_info)
+    sectors_map = map_countries_to_sectors(sectors_info)
+
+    for index, row in country_info_df.iterrows():
+        country = row['Country Name']
+
+        development_status = row['Developed']
+        region = row['Region']
+
+        ethical_category = 'Good' if ethical_score(priority, sdg) >= 50 else 'Bad'
+
+        investment_term = 'Long Run' if country in long_term_investment_countries else 'Short Run'
+
+        country_sectors = sectors_map.get(country, [])
+
+        for sector in country_sectors:
+            if investment_term == 'Long Run':
+                tree.add_country([region, development_status, sector, 'Long Run', ethical_category],
+                                 country)
+                tree.add_country([region, development_status, sector, 'Short Run', ethical_category],
+                                 country)
+            else:
+                tree.add_country([region, development_status, sector, 'Short Run', ethical_category],
+                                 country)
+
+
+
+#tree = Tree("World")
+#add_countries_to_tree(tree, country_info_df, sectors_info, gdp_info, sdg, priority)
 
 #def economics_score(indicator:
 # List Contries & Data on interest raes and SDGS
