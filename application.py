@@ -57,7 +57,7 @@ def submit_func():
 
     if all(digit_check) and (not rank_repeat):
         ethic_status = True
-        ethic_dict = {int(env_combo.get()): 'env', int(equi_combo.get()): 'equi', int(flt_combo.get()): 'flt'}
+        ethic_dict = {int(env_combo.get()): 'env', int(equi_combo.get()): 'equ', int(flt_combo.get()): 'lab'}
         for i in sorted(list(ethic_dict.keys())):
             ethic_list.append(ethic_dict[i])
 
