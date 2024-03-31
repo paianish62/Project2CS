@@ -135,23 +135,32 @@ def classify_long_term_investments(gdp_info, gdp_per_capita_info) -> tuple[list,
     Returns:
     - A list of country codes suitable for long-term investment.
     """
+
+    long_term_investment_temp = []
     long_term_investment_countries = []
     short_term_investment_countries = []
 
-    for country, df in gdp_info.items():
-        # need to take into account gdp per capita (waiting for rishith's output)
-        period_df_lt = df[(df['date'] >= 1980) & (df['date'] <= 2019)].copy()
-        period_df_st = df[(df['date'] >= 2014) & (df['date'] <= 2019)].copy()
+    for country1, df1 in gdp_info.items():
+        period_df_lt = df1[(df1['date'] >= 1980) & (df1['date'] <= 2019)].copy()
+        period_df_st = df1[(df1['date'] >= 2014) & (df1['date'] <= 2019)].copy()
         period_df_lt['growth_rate'] = period_df_lt['value'].pct_change() * 100
         period_df_st['growth_rate'] = period_df_lt['value'].pct_change() * 100
         avg_growth_rate_lt = period_df_lt['growth_rate'].mean()
         avg_growth_rate_st = period_df_st['growth_rate'].mean()
 
-        if avg_growth_rate_lt > 2:  # and if gdp_per_capita score > some threshold
-            long_term_investment_countries.append(country)
+        if avg_growth_rate_lt > 2:
+            long_term_investment_temp.append(country1)
 
         if not avg_growth_rate_st < 0:
-            short_term_investment_countries.append(country)
+            short_term_investment_countries.append(country1)
+
+    for country2, df2 in gdp_per_capita_info:
+        per_capita = df2[(df2['date'] >= 1980) & (df2['date'] <= 2019)].copy()
+        per_capita['growth_rate'] = per_capita['value'].pct_change() * 100
+        per_capita_rate = per_capita['growth_rate'].mean()
+
+        if per_capita_rate > 2 and country2 in long_term_investment_temp:
+            long_term_investment_countries.append(country2)
 
     return (long_term_investment_countries, short_term_investment_countries)
 
@@ -261,6 +270,25 @@ def add_countries_to_tree(dt: Tree, country_info_df, sectors_info, gdp_info, per
                 dt.add_country([region, development_status, sector, 'Long Run', ethical_category], country)
             if 'Short Run' in investment_term:
                 dt.add_country([region, development_status, sector, 'Short Run', ethical_category], country)
+
+
+def main_func(country_info_df, sectors_info, gdp_info, per_capita_info, sdg, priority, trends_rank, user_criteria,
+              cpi_info, interest_info, sdg8_scores):
+    """
+    Main function which creates tree and returns ranked list of countries to user
+    """
+    # Tree Creation
+    ranked_countries = []
+    dt = Tree()
+    add_countries_to_tree(dt, country_info_df, sectors_info, gdp_info, per_capita_info, sdg, priority, trends_rank)
+    unranked_countries = dt.query(user_criteria)
+    country_scores_dict = calculate_economic_performance(gdp_info, cpi_info, interest_info, sdg8_scores)
+    sorted_country_scores = sorted(country_scores_dict.items(), key=lambda x: x[1])
+    for country_and_rank in sorted_country_scores:
+        if country_and_rank[1] in unranked_countries:
+            ranked_countries.append(country_and_rank[1])
+
+    return ranked_countries
 
 
 # tree = Tree("World")
