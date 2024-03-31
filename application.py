@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
+import matplotlib
 
 app = tk.Tk()
 app.title('Global Investment Recommender System')
