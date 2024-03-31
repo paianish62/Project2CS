@@ -16,7 +16,13 @@ def show_output():
     """
     output = tk.Toplevel()
     output.title('Global Investment Recommender System')
-    output.geometry('630x800')
+    output.geometry('1000x700')
+    output.columnconfigure(0, weight=1)
+    output.columnconfigure(1, weight=6)
+    output.columnconfigure(2, weight=1)
+    output_title_text = "🌍  Here's where we think you should invest:"
+    output_title = ttk.Label(master=output, text=output_title_text, font='Arial 23 bold', padding=(20, 30, 0, 0))
+    output_title.grid(row=1, column=1, sticky='nw')
     output.mainloop()
 
 
@@ -78,7 +84,7 @@ def submit_func():
             title='Submitted',
             message='Form successfully submitted'
         )
-        # show_output()
+        show_output()
 
 
 def help_func():
