@@ -1,11 +1,12 @@
 from __future__ import annotations
-from typing import Any, Optional, List
+from typing import Any, Optional, List, Tuple
 import load_data
 
 gdp_info = load_data.load_all_series(load_data.API_KEY, load_data.gdp_series_ids)
 # cpi_info = load_data.load_all_series(load_data.API_KEY, load_data.cpi_series_ids)
 # sectors_info = load_data.extract_sector_gdp_percentage(load_data.sector_info_file, load_data.countries_of_interest)
 # interest = load_data.extract_interest_time_series_data(load_data.interest_info_file, load_data.countries_of_interest)
+
 
 class Tree:
     def __init__(self, root: Optional[Any] = None, subtrees: List[Tree] = None) -> None:
@@ -41,7 +42,8 @@ class Tree:
             if subtree is not None:
                 return subtree.query(criteria_path[1:])
             else:
-                return []#changes
+                return []  # changes
+
 
 tree = Tree("World")
 tree.add_country(["Europe", "Developed", "Tertiary", "Long Run"], "England")
@@ -53,18 +55,45 @@ print(tree.query(["Europe", "Developed", "Tertiary", "Long Run"]))
 (ii) Equity Score - 5, 10 and 16
 (iii) Fair Labour Treatment - 1, 2, 3, 4 and 6
 """
-def ethical_score(priority: list[str], goal_scores: list[int]) -> int:
-    environmental = (goal_scores[7] + goal_scores[11] + goal_scores[12] + goal_scores[13] + goal_scores[14] +
-                     goal_scores[15])/6
-    equitable = (goal_scores[5] + goal_scores[10] + goal_scores[16])/3
-    labour_treatment = (goal_scores[1] + goal_scores[2] + goal_scores[3] + goal_scores[4] + goal_scores[6])/5
-    scores = {'env': environmental, 'equ': equitable, 'lab': labour_treatment}
-    return (scores[priority[0]])*0.4 + (scores[priority[1]])*0.35 + (scores[priority[2]])*0.25
-#edit to include trends
 
-def classify_long_term_investments(gdp_info):
+
+def ethical_score(priority: list[str], goal_scores: list[int], trends_rank: dict[int, int]) -> int:
     """
-    Classify countries based on their average GDP growth rate from 1980 to 2019.
+    Calculates the ethical score based on user priorities and the trend for improvement of
+    each SDG for a country
+
+    Parameters:
+    - priority: Priority of the different ethical areas given by the user (from 1 being the highest
+    and 3 being the lowest)
+    - goal_scores: The SDG scores between 1-100 of a country
+    - trends_rank: Ranking of the trend of improvement in multiples of 20, from 20 to 100, stored in a dict
+    mapping each SDG to its rank
+
+    Returns:
+    - A dynamic ethical score calculated based on the user's preferences
+    """
+    environmental = 0
+    equitable = 0
+    labour_treatment = 0
+    for i in [7, 11, 12, 13, 14, 15]:
+        environmental += ((goal_scores[i] + trends_rank[i]) / 2)
+    environmental = environmental / 6
+
+    for i in [5, 10, 16]:
+        equitable += ((goal_scores[i] + trends_rank[i]) / 2)
+    equitable = environmental / 3
+
+    for i in [1, 2, 3, 4, 6]:
+        labour_treatment += ((goal_scores[i] + trends_rank[i]) / 2)
+    labour_treatment = labour_treatment / 5
+
+    scores = {'env': environmental, 'equ': equitable, 'lab': labour_treatment}
+    return (scores[priority[0]] * 0.4) + (scores[priority[1]] * 0.35) + (scores[priority[2]] * 0.25)
+
+
+def classify_long_term_investments(gdp_info, gdp_per_capita_info) -> tuple[list, list]:
+    """
+    Classify countries based on their ave rage GDP growth rate from 1980 to 2019.
 
     Parameters:
     - gdp_info: pandas data frame
@@ -73,15 +102,24 @@ def classify_long_term_investments(gdp_info):
     - A list of country codes suitable for long-term investment.
     """
     long_term_investment_countries = []
+    short_term_investment_countries = []
 
     for country, df in gdp_info.items():
-        period_df = df[(df['date'] >= 1980) & (df['date'] <= 2019)].copy()
-        period_df['growth_rate'] = period_df['value'].pct_change() * 100
-        avg_growth_rate = period_df['growth_rate'].mean()
-        if avg_growth_rate > 2:
+        # need to take into account gdp per capita (waiting for rishith's output)
+        period_df_lt = df[(df['date'] >= 1980) & (df['date'] <= 2019)].copy()
+        period_df_st = df[(df['date'] >= 2014) & (df['date'] <= 2019)].copy()
+        period_df_lt['growth_rate'] = period_df_lt['value'].pct_change() * 100
+        period_df_st['growth_rate'] = period_df_lt['value'].pct_change() * 100
+        avg_growth_rate_lt = period_df_lt['growth_rate'].mean()
+        avg_growth_rate_st = period_df_st['growth_rate'].mean()
+
+        if avg_growth_rate_lt > 2:  # and if gdp_per_capita score > some threshold
             long_term_investment_countries.append(country)
 
-    return long_term_investment_countries
+        if not avg_growth_rate_st < 0:
+            short_term_investment_countries.append(country)
+
+    return (long_term_investment_countries, short_term_investment_countries)
 
 
 def map_countries_to_sectors(sectors_info):
@@ -110,6 +148,9 @@ def map_countries_to_sectors(sectors_info):
 
 
 def normalize_series(series):
+    """
+    Helper function that normalizes the series
+    """
     return 100 * (series - series.min()) / (series.max() - series.min())
 
 
@@ -147,7 +188,7 @@ def calculate_economic_performance(gdp_info, cpi_info, interest_info, sdg8_score
     return economic_performance_scores
 
 
-def add_countries_to_tree(tree: Tree, country_info_df, sectors_info, gdp_info, sdg, priority):
+def add_countries_to_tree(dt: Tree, country_info_df, sectors_info, gdp_info, per_capita_info, sdg, priority, trends_rank):
     """
     Iterates over all countries and adds them to the tree based on various criteria.
 
@@ -162,7 +203,7 @@ def add_countries_to_tree(tree: Tree, country_info_df, sectors_info, gdp_info, s
     The function does not return anything, but it updates the tree in place.
     """
 
-    long_term_investment_countries = classify_long_term_investments(gdp_info)
+    long_term_countries, short_term_countries = classify_long_term_investments(gdp_info, per_capita_info)
     sectors_map = map_countries_to_sectors(sectors_info)
 
     for index, row in country_info_df.iterrows():
@@ -171,38 +212,34 @@ def add_countries_to_tree(tree: Tree, country_info_df, sectors_info, gdp_info, s
         development_status = row['Developed']
         region = row['Region']
 
-        ethical_category = 'Good' if ethical_score(priority, sdg) >= 50 else 'Bad'
+        investment_term = []
+        ethical_category = 'Good' if ethical_score(priority, sdg, trends_rank) >= 50 else 'Bad'
 
-        investment_term = 'Long Run' if country in long_term_investment_countries else 'Short Run'
-#short run function
+        if country in long_term_countries:
+            investment_term.append('Long Run')
+        if country in short_term_countries:
+            investment_term.append('Short Run')
+
         country_sectors = sectors_map.get(country, [])
 
         for sector in country_sectors:
-            if investment_term == 'Long Run':
-                tree.add_country([region, development_status, sector, 'Long Run', ethical_category],
-                                 country)
-                tree.add_country([region, development_status, sector, 'Short Run', ethical_category],
-                                 country)
-#modify to include sr
-            else:
-                tree.add_country([region, development_status, sector, 'Short Run', ethical_category],
-                                 country)
+            if 'Long Run' in investment_term:
+                dt.add_country([region, development_status, sector, 'Long Run', ethical_category], country)
+            if 'Short Run' in investment_term:
+                dt.add_country([region, development_status, sector, 'Short Run', ethical_category], country)
 
 
+# tree = Tree("World")
+# add_countries_to_tree(tree, country_info_df, sectors_info, gdp_info, sdg, priority)
 
-#tree = Tree("World")
-#add_countries_to_tree(tree, country_info_df, sectors_info, gdp_info, sdg, priority)
-
-#def economics_score(indicator:
+# def economics_score(indicator:
 # List Contries & Data on interest raes and SDGS
 # for loop on the countries
 # CPI, Interest Rates, GDP
 # Ethical Score = 0.4(1) + 0.3(2) + 0.2(3) + 0.1(
-#[equ, env, lab]
+# [equ, env, lab]
 
-#Additional Stuff:
-#Post Covid measurement
-#Short Run, create function and change the three creating function
-#Change ethical score (qualitative trends, score 1-100)
-#Optional Test file with mini-datasets for doctest
+# Additional Stuff:
+# Post Covid measurement
+# Optional Test file with mini-datasets for doctest
 # Output ka input: {'country':[*economic score*, *ethical score*]}
