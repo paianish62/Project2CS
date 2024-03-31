@@ -3,9 +3,9 @@ from typing import Any, Optional, List
 import load_data
 
 gdp_info = load_data.load_all_series(load_data.API_KEY, load_data.gdp_series_ids)
-#cpi_info = load_data.load_all_series(load_data.API_KEY, load_data.cpi_series_ids)
-#sectors_info = load_data.extract_sector_gdp_percentage(load_data.sector_info_file, load_data.countries_of_interest)
-#interest = load_data.extract_interest_time_series_data(load_data.interest_info_file, load_data.countries_of_interest)
+# cpi_info = load_data.load_all_series(load_data.API_KEY, load_data.cpi_series_ids)
+# sectors_info = load_data.extract_sector_gdp_percentage(load_data.sector_info_file, load_data.countries_of_interest)
+# interest = load_data.extract_interest_time_series_data(load_data.interest_info_file, load_data.countries_of_interest)
 
 class Tree:
     def __init__(self, root: Optional[Any] = None, subtrees: List[Tree] = None) -> None:
@@ -205,3 +205,4 @@ def add_countries_to_tree(tree: Tree, country_info_df, sectors_info, gdp_info, s
 #Short Run, create function and change the three creating function
 #Change ethical score (qualitative trends, score 1-100)
 #Optional Test file with mini-datasets for doctest
+# Output ka input: {'country':[*economic score*, *ethical score*]}
