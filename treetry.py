@@ -300,8 +300,8 @@ def calculate_economic_performance(gdp_info, cpi_info, interest_info, sdg_info) 
     return economic_performance_scores
 
 
-def add_countries_to_tree(dt: Tree, region_development, sectors_info, gdp_info, per_capita_info, sdg,
-                          priority, trends_rank) -> None:
+def add_countries_to_tree(dt: Tree, region_development, sectors_info, gdp_info, per_capita_info, sdg_information,
+                          priority) -> None:
     """
     Iterates over all countries and adds them to the tree based on various criteria including
     development status, region, sector participation, investment term (long/short run), and
@@ -335,7 +335,7 @@ def add_countries_to_tree(dt: Tree, region_development, sectors_info, gdp_info, 
         region = region_development[cont][0] # Geographical region
 
         # Determine the ethical category based on scoring
-        ethical_category = 'Good' if ethical_score(priority, sdg, trends_rank) >= 50 else 'Bad'
+        ethical_category = 'Good' if ethical_score(priority, sdg_information) >= 50 else 'Bad'
 
         # Determine the investment term based on classification
         investment_term = []
@@ -355,18 +355,18 @@ def add_countries_to_tree(dt: Tree, region_development, sectors_info, gdp_info, 
                 dt.add_country([region, development_status, sector, 'Short Run', ethical_category], country)
 
 
-def main_func(country_info_df, sectors_info, gdp_info, per_capita_info, sdg, priority, trends_rank, user_criteria,
+def main_func(country_info_df, sectors_info, gdp_info, per_capita_info, sdg_information, priority, user_criteria,
               cpi_info, interest_info, sdg8_scores, goal_scores):
     """
     Main function which creates tree and returns ranked list of countries to user
     """
     output = {}
     dt = Tree()
-    add_countries_to_tree(dt, country_info_df, sectors_info, gdp_info, per_capita_info, sdg, priority, trends_rank)
+    add_countries_to_tree(dt, country_info_df, sectors_info, gdp_info, per_capita_info, sdg_information, priority)
     unranked_countries = dt.query(user_criteria)
     country_scores_dict = calculate_economic_performance(gdp_info, cpi_info, interest_info, sdg8_scores)
     for country in unranked_countries:
-        output[country] = [country_scores_dict[country], ethical_score(user_criteria, goal_scores, trends_rank)]
+        output[country] = [country_scores_dict[country], ethical_score(user_criteria, sdg_information)]
 
     return output
 
