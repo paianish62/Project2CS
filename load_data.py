@@ -212,3 +212,10 @@ def extract_region_info(csv_file_path, countries_of_interest):
 
 # agr > 5, industry > 25, services > 50
 # sdg - rank trends from 20 to 100 (multiples of 20) - average trend and current score
+
+
+'''
+NEW DATA BELOW !!!!
+'''
+# region_development = load_data.extract_region_info(load_data.region_info_file, load_data.countries_of_interest)
+# sdg_info = load_data.extract_sdg_info(load_data.sdg_info_file, load_data.countries_of_interest)
