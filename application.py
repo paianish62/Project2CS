@@ -1,8 +1,3 @@
-import tkinter as tk
-from tkinter import ttk, messagebox
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import matplotlib.pyplot as plt
-
 """
 This file contains the frontend implementation of our program to create a user-friendly and aesthetically appealing
 user-interface. Leveraging Tkinter for the graphical user interface, it guides users through a series of investment
@@ -13,6 +8,12 @@ for making informed investment decisions grounded in both economic performance a
 
 Copyright © 2023 GeoInvest. All rights reserved.
 """
+
+import tkinter as tk
+from tkinter import ttk, messagebox
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import matplotlib.pyplot as plt
+
 
 def show_output():
     """
