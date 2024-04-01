@@ -9,7 +9,7 @@ countries_of_interest = {
     'Brazil' : 'BR',
     'Mexico' : 'MX',
     'Argentina' : 'AR',
-    'Uraguay' : 'UY',
+    'Uruguay' : 'UY',
     'South Africa' : 'ZA',
     'Mauritius' : 'MU',
     'Botswana' : 'BW',
@@ -38,6 +38,7 @@ countries_of_interest = {
 
 sector_info_file = 'datasets/gdp_info.csv'
 interest_info_file = 'datasets/interest_info.csv'
+sdg_info_file = 'datasets/sdg_info.csv'
 
 gdp_series_ids = {
     'USA': 'RGDPNAUSA666NRUG',
@@ -163,8 +164,51 @@ def extract_interest_time_series_data(csv_file_path, countries_of_interest, star
         filtered_df = filtered_df[columns_of_interest]
     return filtered_df.reset_index()
 
+# {'Decreasing', 'Score moderately improving, insufficient to attain goal', 'On track or maintaining SDG achievement', 'Score stagnating or increasing at less than 50% of required rate', nan}
 
-print(extract_sector_gdp_percentage(sector_info_file, countries_of_interest))
+def extract_sdg_info(csv_file_path, countries_of_interest):
+    sdg_data_df = pd.read_csv(csv_file_path)
+    sdg_info_dict = {}
+    for country in countries_of_interest:
+        sdg_info_dict[country] = {}
+        temp_df = sdg_data_df.loc[sdg_data_df['country_label'] == country].reset_index()
+        for x in range(17):
+            trendstr = 'Goal ' + str(x + 1) + ' Trend'
+            scorestr = 'Goal ' + str(x + 1) + ' Score'
+            trend = temp_df.iloc[0][trendstr]
+            score = temp_df.iloc[0][scorestr]
+            if trend == 'Decreasing':
+                trend = 40
+            elif trend == 'Score moderately improving, insufficient to attain goal':
+                trend = 80
+            elif trend == 'On track or maintaining SDG achievement':
+                trend = 100
+            elif trend == 'Score stagnating or increasing at less than 50% of required rate':
+                trend = 60
+            else:
+                trend = 20
+            try:
+                score = int(score)
+            except:
+                score = -1
+            sdg_info_dict[country][x + 1] = [trend, score]
+    return sdg_info_dict
+
+region_info_file = 'datasets/country_info.csv'
+
+def extract_region_info(csv_file_path, countries_of_interest):
+    region_data_df = pd.read_csv(csv_file_path)
+    region_info_dict = {}
+    for country in countries_of_interest:
+        temp_df = region_data_df.loc[region_data_df['ISO Code (usa-census)'] == countries_of_interest[country]].reset_index()
+        print(country)
+        develop_status = temp_df.iloc[0]['Developed / Developing Countries (M49)']
+        if develop_status == 'Developed':
+            develop_status = 1
+        else:
+            develop_status = 0
+        region_info_dict[country] = [temp_df.iloc[0]['Region Name_en (M49)'], develop_status]
+    return region_info_dict
 
 # agr > 5, industry > 25, services > 50
 # sdg - rank trends from 20 to 100 (multiples of 20) - average trend and current score
