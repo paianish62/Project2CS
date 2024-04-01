@@ -273,22 +273,26 @@ def add_countries_to_tree(dt: Tree, country_info_df, sectors_info, gdp_info, per
 
 
 def main_func(country_info_df, sectors_info, gdp_info, per_capita_info, sdg, priority, trends_rank, user_criteria,
-              cpi_info, interest_info, sdg8_scores):
+              cpi_info, interest_info, sdg8_scores, goal_scores):
     """
     Main function which creates tree and returns ranked list of countries to user
     """
-    # Tree Creation
-    ranked_countries = []
+    output = {}
     dt = Tree()
     add_countries_to_tree(dt, country_info_df, sectors_info, gdp_info, per_capita_info, sdg, priority, trends_rank)
     unranked_countries = dt.query(user_criteria)
     country_scores_dict = calculate_economic_performance(gdp_info, cpi_info, interest_info, sdg8_scores)
-    sorted_country_scores = sorted(country_scores_dict.items(), key=lambda x: x[1])
-    for country_and_rank in sorted_country_scores:
-        if country_and_rank[1] in unranked_countries:
-            ranked_countries.append(country_and_rank[1])
+    for country in unranked_countries:
+        output[country] = [country_scores_dict[country], ethical_score(user_criteria, goal_scores, trends_rank)]
 
-    return ranked_countries
+    return output
+
+    # sorted_country_scores = sorted(country_scores_dict.items(), key=lambda x: x[1])
+    # for country_and_rank in sorted_country_scores:
+    #     if country_and_rank[1] in unranked_countries:
+    #         ranked_countries.append(country_and_rank[1])
+    #
+    # return ranked_countries
 
 
 # tree = Tree("World")
@@ -303,5 +307,5 @@ def main_func(country_info_df, sectors_info, gdp_info, per_capita_info, sdg, pri
 
 # Additional Stuff:
 # Post Covid measurement
-# Optional Test file with mini-datasets for doctest
+# Doctests for main_func and economic score
 # Output ka input: {'country':[*economic score*, *ethical score*]} /or/ {*rank*:['country', *economic score*, *ethical score*]}
