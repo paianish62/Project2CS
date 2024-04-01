@@ -19,7 +19,7 @@ def show_output():
 
     output = tk.Toplevel()
     output.title('Global Investment Recommender System')
-    output.geometry('1000x1000')
+    output.geometry('1000x750')
     output.columnconfigure(0, weight=1)
     output.columnconfigure(1, weight=6)
     output.columnconfigure(2, weight=1)
@@ -27,7 +27,7 @@ def show_output():
     output_title = ttk.Label(master=output, text=output_title_text, font='Arial 23 bold', padding=(20, 30, 0, 20))
     output_title.grid(row=1, column=1, sticky='nw')
 
-    final_data = {'India': [50, 60], 'Canada': [70, 30], 'Germany': [80, 90]}
+    final_data = {'India': [50, 60], 'Canada': [70, 30], 'Germany': [80, 90], 'India1': [50, 60], 'Canada1': [70, 30]}
     eco_scores = [final_data[i][0] for i in final_data]
     ethic_scores = [final_data[i][1] for i in final_data]
 
@@ -64,14 +64,49 @@ def show_output():
 
     canvas_eco = FigureCanvasTkAgg(fig1, frame)
     canvas_eco.draw()
-    canvas_eco.get_tk_widget().grid(row=0, column=0, sticky='nsew', padx=(20, 20))
+    canvas_eco.get_tk_widget().grid(row=0, column=0, sticky='nsew', padx=(20, 10))
 
     canvas_ethic = FigureCanvasTkAgg(fig2, frame)
     canvas_ethic.draw()
-    canvas_ethic.get_tk_widget().grid(row=0, column=1, sticky='nsew', padx=(30, 10))
+    canvas_ethic.get_tk_widget().grid(row=0, column=1, sticky='nsew', padx=(10, 20))
 
     frame.grid_rowconfigure(0, weight=1)
     frame.grid_columnconfigure([0, 1], weight=1)
+
+    output_title_text = "Here are the countries ranked:"
+    output_title = ttk.Label(master=output, text=output_title_text, font='Arial 23 bold', padding=(20, 30, 0, 20))
+    output_title.grid(row=3, column=1, sticky='nw')
+
+    # List View
+
+    # countries = list(final_data.keys())
+    # count = 4
+    # rank = 1
+    # for i in countries:
+    #     country_title = ttk.Label(master=output, text='\t'+str(rank)+'. '+i, font='Arial 18', padding=(20, 5, 0, 20))
+    #     country_title.grid(row=count, column=1, sticky='nw')
+    #     count += 1
+    #     rank += 1
+
+    # Table View
+
+    columns = ('Rank', 'Country', 'Economic Score', 'Ethical Score')
+    table = ttk.Treeview(output, columns=columns, show='headings')
+    for col in columns:
+        table.heading(col, text=col, anchor=tk.CENTER)
+        table.column(col, anchor="center")
+
+    main_data = []
+    for i in final_data:
+        temp_list = [i, final_data[i][0], final_data[i][1]]
+        main_data.append(temp_list)
+
+    rank = 1
+    for row in main_data:
+        table.insert('', tk.END, values=[rank]+row)
+        rank += 1
+
+    table.grid(row=4, column=1, sticky='ew', padx=(20, 20), pady=(0, 100))
 
     output.mainloop()
 
