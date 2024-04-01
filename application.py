@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
-import matplotlib
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import matplotlib.pyplot as plt
 
 app = tk.Tk()
 app.title('Global Investment Recommender System')
@@ -15,15 +16,63 @@ def show_output():
     abcd
     :return:
     """
+
     output = tk.Toplevel()
     output.title('Global Investment Recommender System')
-    output.geometry('1000x700')
+    output.geometry('1000x1000')
     output.columnconfigure(0, weight=1)
     output.columnconfigure(1, weight=6)
     output.columnconfigure(2, weight=1)
     output_title_text = "🌍  Here's where we think you should invest:"
-    output_title = ttk.Label(master=output, text=output_title_text, font='Arial 23 bold', padding=(20, 30, 0, 0))
+    output_title = ttk.Label(master=output, text=output_title_text, font='Arial 23 bold', padding=(20, 30, 0, 20))
     output_title.grid(row=1, column=1, sticky='nw')
+
+    final_data = {'India': [50, 60], 'Canada': [70, 30], 'Germany': [80, 90]}
+    eco_scores = [final_data[i][0] for i in final_data]
+    ethic_scores = [final_data[i][1] for i in final_data]
+
+    plt.ioff()
+    fig1, ax1 = plt.subplots(figsize=(4, 3))  # Adjust figsize as needed
+    ax1.bar(final_data.keys(), eco_scores, color='#7889ED')
+    ax1.set_title("Countries by Economic Score", color='white')
+    ax1.set_ylabel("Economic Score", color='white')
+    ax1.set_facecolor('#121828')
+    fig1.set_facecolor('#121828')
+    ax1.spines['bottom'].set_edgecolor('white')
+    ax1.spines['left'].set_edgecolor('white')
+    ax1.spines['top'].set_edgecolor('#121828')
+    ax1.spines['right'].set_edgecolor('#121828')
+    ax1.tick_params(axis='x', colors='white')
+    ax1.tick_params(axis='y', colors='white')
+
+    plt.ioff()
+    fig2, ax2 = plt.subplots(figsize=(4, 3))  # Adjust figsize as needed
+    ax2.bar(final_data.keys(), ethic_scores, color='#7889ED')
+    ax2.set_title("Countries by Ethical Score", color='white')
+    ax2.set_ylabel("Ethical Score", color='white')
+    ax2.set_facecolor('#121828')
+    fig2.set_facecolor('#121828')
+    ax2.spines['bottom'].set_edgecolor('white')
+    ax2.spines['left'].set_edgecolor('white')
+    ax2.spines['top'].set_edgecolor('#121828')
+    ax2.spines['right'].set_edgecolor('#121828')
+    ax2.tick_params(axis='x', colors='white')
+    ax2.tick_params(axis='y', colors='white')
+
+    frame = tk.Frame(output)
+    frame.grid(row=2, column=1, sticky='nsew')
+
+    canvas_eco = FigureCanvasTkAgg(fig1, frame)
+    canvas_eco.draw()
+    canvas_eco.get_tk_widget().grid(row=0, column=0, sticky='nsew', padx=(20, 20))
+
+    canvas_ethic = FigureCanvasTkAgg(fig2, frame)
+    canvas_ethic.draw()
+    canvas_ethic.get_tk_widget().grid(row=0, column=1, sticky='nsew', padx=(30, 10))
+
+    frame.grid_rowconfigure(0, weight=1)
+    frame.grid_columnconfigure([0, 1], weight=1)
+
     output.mainloop()
 
 
@@ -35,7 +84,7 @@ def submit_func():
     status = dev_combo.get()
     industry = ind_combo.get()
     tree_list = [region, status, industry]
-    blank = ['Region', 'Status', 'Industry']
+    blank = ['Region', 'Status', 'Sector']
     form_status = False
     ethic_status = False
     rank_repeat = False
