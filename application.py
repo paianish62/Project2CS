@@ -44,7 +44,7 @@ def show_output():
 
     plt.ioff()
     fig2, ax2 = plt.subplots(figsize=(4, 3))  # Adjust figsize as needed
-    ax2.bar(final_data.keys(), ethic_scores, color='#7889ED')
+    ax2.bar(final_data.keys(), ethic_scores, color='#F06449')
     ax2.set_title("Countries by Ethical Score", color='white')
     ax2.set_ylabel("Ethical Score", color='white')
     ax2.set_facecolor('#121828')
@@ -178,9 +178,28 @@ def run():
 
         :return:
         """
-        terms_dict = {'Economic Development Status': '', 'Sector': '', 'Developed': '', 'Emerging': '', 'Primary': '',
-                      'Secondary': '', 'Tertiary': '', 'Equity': '',
-                      'Fair Labour Treatment': ''}
+        eds = "A classification indicating a country's level of economic growth and stability."
+        sec = "A segment of the economy, often categorized into primary (resource extraction), \
+               secondary (manufacturing), and tertiary (services) sectors, reflecting different types \
+               of economic activities."
+        dev = "Refers to countries with high levels of industrialization, a high standard \
+                of living, and advanced technological infrastructure."
+        em = "Describes nations that are in the process of rapid industrialization and have growing economies, often \
+              experiencing fast-paced economic growth and development."
+        prim = "The sector of the economy focused on the extraction and collection of \
+                natural resources, such as agriculture, mining, and forestry."
+        second = "This sector involves processing, manufacturing, and construction, transforming \
+                raw materials into finished goods and buildings."
+        tert = "The sector that provides services instead of goods, including healthcare, education, retail, and \
+                financial services."
+        equit = "Fairness and equality in rights, opportunities, and treatment between genders, aiming to eliminate \
+                discrimination and ensure equal access for all."
+        labour = "Ensuring workers are treated ethically and legally, including fair wages, safe \
+                working conditions, and respect for their rights."
+        terms_dict = {'Economic Development Status': eds, 'Sector': sec, 'Developed': dev, 'Emerging': em,
+                      'Primary': prim, 'Secondary': second, 'Tertiary': tert, 'Equity': equit,
+                      'Fair Labour Treatment': labour}
+
         if help_combo.get() == 'Select':
             messagebox.showinfo(
                 title='No Term Selected',
@@ -189,7 +208,7 @@ def run():
         else:
             messagebox.showinfo(
                 title=help_combo.get(),
-                message=help_combo.get()+' means: '+terms_dict[help_combo.get()]
+                message=help_combo.get()+': '+terms_dict[help_combo.get()]
             )
 
     app = tk.Tk()
