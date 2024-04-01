@@ -332,7 +332,7 @@ def add_countries_to_tree(dt: Tree, region_development, sectors_info, gdp_info, 
         # Development status (emerging/developed)'
         development_status = 'Developed' if region_development[cont][1] == 1 else 'Emerging'
 
-        region = region_development[cont][0] # Geographical region
+        region = region_development[cont][0]  # Geographical region
 
         # Determine the ethical category based on scoring
         ethical_category = 'Good' if ethical_score(priority, sdg_information) >= 50 else 'Bad'
@@ -356,7 +356,7 @@ def add_countries_to_tree(dt: Tree, region_development, sectors_info, gdp_info, 
 
 
 def main_func(country_info_df, sectors_info, gdp_info, per_capita_info, sdg_information, priority, user_criteria,
-              cpi_info, interest_info, sdg8_scores, goal_scores):
+              cpi_info, interest_info, sdg8_scores):
     """
     Main function which creates tree and returns ranked list of countries to user
     """
