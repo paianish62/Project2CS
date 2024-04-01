@@ -304,4 +304,4 @@ def main_func(country_info_df, sectors_info, gdp_info, per_capita_info, sdg, pri
 # Additional Stuff:
 # Post Covid measurement
 # Optional Test file with mini-datasets for doctest
-# Output ka input: {'country':[*economic score*, *ethical score*]}
+# Output ka input: {'country':[*economic score*, *ethical score*]} /or/ {*rank*:['country', *economic score*, *ethical score*]}

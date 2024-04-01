@@ -1,3 +1,7 @@
+"""
+Hello guys welcome to our app
+"""
+
 import tkinter as tk
 from tkinter import ttk, messagebox
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -104,7 +108,7 @@ def show_output():
     output.mainloop()
 
 
-def app():
+def run():
     """
 
     :return:
@@ -200,8 +204,8 @@ def app():
     title = ttk.Label(master=app, text=title_text, font='Arial 23 bold',  padding=(20, 30, 0, 0))
     title.grid(row=1, column=1, sticky='nw')
 
-    subtitle1 = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut \n'
-    subtitle_text = subtitle1 + 'labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrudexercitation ullamco.'
+    subtitle1 = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut \nlabore '
+    subtitle_text = subtitle1 + 'et dolore magna aliqua. Ut enim ad minim veniam, quis nostrudexercitation ullamco.'
     subtitle = ttk.Label(master=app, text=subtitle_text, font='Arial 11',  padding=(20, 8, 0, 0))
     subtitle.grid(row=2, column=1, sticky='nw')
 
@@ -211,7 +215,8 @@ def app():
     region_title.grid(row=3, column=1, sticky='nw')
 
     region_subtitle_text = 'In which region are you considering making investments?'
-    region_subtitle = ttk.Label(master=app, text=region_subtitle_text, font=('Arial', 12, 'italic'),  padding=(20, 5, 0, 0))
+    padd = (20, 5, 0, 0)
+    region_subtitle = ttk.Label(master=app, text=region_subtitle_text, font=('Arial', 12, 'italic'),  padding=padd)
     region_subtitle.grid(row=4, column=1, sticky='nw')
 
     region_values = ['Americas', 'Africa', 'Asia', 'Middle East', 'Europe', 'Oceana']
@@ -254,7 +259,8 @@ def app():
 
     ethics_subtitle1 = 'Please prioritize the following three categories\n'
     ethics_subtitle_text = ethics_subtitle1 + '(1 indicating the highest priority and 3 the lowest priority.)'
-    ethics_subtitle = ttk.Label(master=app, text=ethics_subtitle_text, font=('Arial', 12, 'italic'),  padding=(20, 5, 0, 0))
+    padd_e = (20, 5, 0, 0)
+    ethics_subtitle = ttk.Label(master=app, text=ethics_subtitle_text, font=('Arial', 12, 'italic'),  padding=padd_e)
     ethics_subtitle.grid(row=13, column=1, sticky='nw')
     ranks = ['1', '2', '3']
 
@@ -300,4 +306,5 @@ def app():
 
     app.mainloop()
 
-app()
+
+run()
