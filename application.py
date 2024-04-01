@@ -1,12 +1,18 @@
-"""
-Hello guys welcome to our app
-"""
-
 import tkinter as tk
 from tkinter import ttk, messagebox
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
 
+"""
+This file contains the frontend implementation of our program to create a user-friendly and aesthetically appealing
+user-interface. Leveraging Tkinter for the graphical user interface, it guides users through a series of investment
+criteria, including region, economic development status, sector of interest, and ethical priorities.
+Utilizing matplotlib for data visualization, the application presents a comparative analysis of countries
+based on economic and ethical scores. The goal is to provide users with a comprehensive and accessible tool
+for making informed investment decisions grounded in both economic performance and ethical considerations.
+
+Copyright © 2023 GeoInvest. All rights reserved.
+"""
 
 def show_output():
     """
