@@ -13,11 +13,12 @@ decision-making.
 Copyright © 2023 GeoInvest. All rights reserved.
 """
 
-#gdp_info = load_data.load_all_series(load_data.API_KEY, load_data.gdp_series_ids)
-# cpi_info = load_data.load_all_series(load_data.API_KEY, load_data.cpi_series_ids)
-sectors_info = load_data.extract_sector_gdp_percentage(load_data.sector_info_file, load_data.countries_of_interest)
-# interest = load_data.extract_interest_time_series_data(load_data.interest_info_file, load_data.countries_of_interest)
-
+gdp_info = load_data.load_all_series(load_data.API_KEY, load_data.gdp_series_ids)
+cpi_info = load_data.load_all_series(load_data.API_KEY, load_data.cpi_series_ids)
+#sectors_info = load_data.extract_sector_gdp_percentage(load_data.sector_info_file, load_data.countries_of_interest)
+interest = load_data.extract_interest_time_series_data(load_data.interest_info_file, load_data.countries_of_interest)
+region_development = load_data.extract_region_info(load_data.region_info_file, load_data.countries_of_interest)
+sdg_info = load_data.extract_sdg_info(load_data.sdg_info_file, load_data.countries_of_interest)
 
 class Tree:
     """
@@ -107,7 +108,7 @@ print(tree.query(["Europe", "Developed", "Tertiary", "Long Run"]))
 """
 
 
-def ethical_score(priority: list[str], goal_scores: list[int], trends_rank: dict[int, int]) -> int:
+def ethical_score(priority: list[str], sdg_information) -> int:
     """
     Calculates the ethical score based on user priorities and the trend for improvement of
     each SDG for a country
@@ -115,9 +116,7 @@ def ethical_score(priority: list[str], goal_scores: list[int], trends_rank: dict
     Parameters:
     - priority: Priority of the different ethical areas given by the user (from 1 being the highest
     and 3 being the lowest)
-    - goal_scores: The SDG scores between 1-100 of a country
-    - trends_rank: Ranking of the trend of improvement in multiples of 20, from 20 to 100, stored in a dict
-    mapping each SDG to its rank
+    - sdg_information: The SDG scores and trends between 1-100 of a country
 
     Returns:
     - A dynamic ethical score calculated based on the user's preferences
@@ -127,17 +126,17 @@ def ethical_score(priority: list[str], goal_scores: list[int], trends_rank: dict
     labour_treatment = 0
     # Calculate the environmental score as the average of selected SDGs
     for i in [7, 11, 12, 13, 14, 15]:
-        environmental += ((goal_scores[i] + trends_rank[i]) / 2)
+        environmental += (sum(sdg_information[i]) / 2)
     environmental = environmental / 6
 
     for i in [5, 10, 16]:
         # Calculate the equitable score as the average of selected SDGs
-        equitable += ((goal_scores[i] + trends_rank[i]) / 2)
+        equitable += (sum(sdg_information[i]) / 2)
     equitable = equitable / 3
 
     for i in [1, 2, 3, 4, 6]:
         # Calculate the labour treatment score as the average of selected SDGs
-        labour_treatment += ((goal_scores[i] + trends_rank[i]) / 2)
+        labour_treatment += (sum(sdg_information[i]) / 2)
     labour_treatment = labour_treatment / 5
 
     # Store the scores in a dictionary
@@ -247,7 +246,7 @@ def normalize_series(series):
     return 100 * (series - series.min()) / (series.max() - series.min())
 
 
-def calculate_economic_performance(gdp_info, cpi_info, interest_info, sdg8_scores) -> dict[str, int]:
+def calculate_economic_performance(gdp_info, cpi_info, interest_info, sdg_info) -> dict[str, int]:
 
     """
     Calculates the economic performance scores for each country based on normalized
@@ -257,7 +256,7 @@ def calculate_economic_performance(gdp_info, cpi_info, interest_info, sdg8_score
     - gdp_info: Dictionary of pandas DataFrames with GDP data for each country.
     - cpi_info: Dictionary of pandas DataFrames with CPI data for each country.
     - interest_info: Dictionary of pandas DataFrames with interest rate data for each country.
-    - sdg8_scores: Dictionary containing SDG 8 scores for each country.
+    - sdg_info: Dictionary of pandas DataFrames with SDG data for each country.
 
     Returns:
     - A dictionary mapping country codes to their economic performance scores.
@@ -288,7 +287,7 @@ def calculate_economic_performance(gdp_info, cpi_info, interest_info, sdg8_score
 
         #SDG
         # Retrieve the SDG 8 score for the country
-        sdg8_score = sdg8_scores[country][7]
+        sdg8_score = sum(sdg_info[country][8])/2
 
         # Calculate the combined economic score with assigned weights
         economic_score = (normalized_gdp_growth * 0.4) + \
@@ -301,7 +300,7 @@ def calculate_economic_performance(gdp_info, cpi_info, interest_info, sdg8_score
     return economic_performance_scores
 
 
-def add_countries_to_tree(dt: Tree, country_info_df, sectors_info, gdp_info, per_capita_info, sdg,
+def add_countries_to_tree(dt: Tree, region_development, sectors_info, gdp_info, per_capita_info, sdg,
                           priority, trends_rank) -> None:
     """
     Iterates over all countries and adds them to the tree based on various criteria including
@@ -327,11 +326,13 @@ def add_countries_to_tree(dt: Tree, country_info_df, sectors_info, gdp_info, per
     sectors_map = map_countries_to_sectors(sectors_info)
 
     # Iterate over each country in the country information DataFrame
-    for index, row in country_info_df.iterrows():
-        country = row['Country Name']
+    for cont in region_development:
+        country = cont
 
-        development_status = row['Developed'] # Development status (emerging/developed)
-        region = row['Region'] # Geographical region
+        # Development status (emerging/developed)'
+        development_status = 'Developed' if region_development[cont][1] == 1 else 'Emerging'
+
+        region = region_development[cont][0] # Geographical region
 
         # Determine the ethical category based on scoring
         ethical_category = 'Good' if ethical_score(priority, sdg, trends_rank) >= 50 else 'Bad'
