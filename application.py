@@ -13,9 +13,18 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
+import treetry
+import load_data
+
+gdp_info = load_data.load_all_series(load_data.API_KEY, load_data.gdp_series_ids)
+cpi_info = load_data.load_all_series(load_data.API_KEY, load_data.cpi_series_ids)
+sectors_info = load_data.extract_sector_gdp_percentage(load_data.sector_info_file, load_data.countries_of_interest)
+interest = load_data.extract_interest_time_series_data(load_data.interest_info_file, load_data.countries_of_interest)
+region_development = load_data.extract_region_info(load_data.region_info_file, load_data.countries_of_interest)
+sdg_info = load_data.extract_sdg_info(load_data.sdg_info_file, load_data.countries_of_interest)
 
 
-def show_output():
+def show_output(treelist: list, ethiclist: list):
     """
     abcd
     :return:
@@ -32,7 +41,10 @@ def show_output():
     output_title.grid(row=1, column=1, sticky='nw')
 
     # Getting the final data and sorting and ranking it.
-    final_data = {'India': [50, 60], 'Canada': [70, 30], 'Germany': [80, 90], 'India1': [50, 60], 'Canada1': [70, 30]}
+    countries_query = treetry.main_func(region_development, sectors_info, gdp_info, sdg_info, ethiclist, treelist,
+                                        cpi_info, interest)
+    final_data = countries_query
+    final_data1 = {'India': [50, 60], 'Canada': [70, 30], 'Germany': [80, 90], 'India1': [50, 60], 'Canada1': [70, 30]}
     eco_scores = [final_data[i][0] for i in final_data]
     ethic_scores = [final_data[i][1] for i in final_data]
     avg_scores = {}
@@ -191,7 +203,7 @@ def run():
                 title='Submitted',
                 message='Form successfully submitted'
             )
-            show_output()
+            show_output(tree_list, ethic_list)
 
     def help_func():
         """
