@@ -44,10 +44,8 @@ def show_output():
             avg_scores[avg_score].append(i)
     sorted_avg_scores = sorted(list(avg_scores.keys()), reverse=True)
     ranked_countries = []
-    print(avg_scores)
-    print(sorted_avg_scores)
     for i in sorted_avg_scores:
-        ranked_countries.extend(avg_scores[i])
+        ranked_countries.extend(sorted(avg_scores[i], reverse=True))
 
     plt.ioff()
     fig1, ax1 = plt.subplots(figsize=(4, 3))  # Adjust figsize as needed
@@ -218,9 +216,12 @@ def run():
                 discrimination and ensure equal access for all."
         labour = "Ensuring workers are treated ethically and legally, including fair wages, safe \
                 working conditions, and respect for their rights."
+        invt = "The period over which money is invested."
+        lt = "Investments held for several years or more, typically aiming for larger gains over time."
+        st = "Investments held for a short period, usually less than a year, focusing on quick gains."
         terms_dict = {'Economic Development Status': eds, 'Sector': sec, 'Developed': dev, 'Emerging': em,
                       'Primary': prim, 'Secondary': second, 'Tertiary': tert, 'Equity': equit,
-                      'Fair Labour Treatment': labour}
+                      'Fair Labour Treatment': labour, 'Investment Terms': invt, 'Long Term': lt, 'Short Term': st}
 
         if help_combo.get() == 'Select':
             messagebox.showinfo(
@@ -352,8 +353,8 @@ def run():
     help_text = 'Any term you do not understand? please select it and press the Help button'
     help_subtitle = ttk.Label(master=app, text=help_text, font=('Arial', 13),  padding=(20, 25, 0, 0))
     help_subtitle.grid(row=21, column=1, sticky='nw')
-    terms = ['Economic Development Status', 'Sector', 'Developed', 'Emerging', 'Primary', 'Secondary',
-             'Tertiary', 'Equity', 'Fair Labour Treatment']
+    terms = ['Economic Development Status', 'Investment Terms', 'Sector', 'Developed', 'Emerging', 'Primary',
+             'Secondary', 'Tertiary', 'Long Term', 'Short Term', 'Equity', 'Fair Labour Treatment']
     help_combo = ttk.Combobox(master=app, values=terms, state='readonly', width=37)
     help_combo.set('Select')
     help_combo.grid(row=22, column=1, sticky='nw', padx=(18, 100), pady=(5, 0))
