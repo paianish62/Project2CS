@@ -378,7 +378,9 @@ def main_func(country_info_df, sectors_info, gdp_info, sdg_information, priority
         new_country_list = search_country(criteria, dt, [], 0)
         if not new_country_list:
             top_5_countries = sorted(country_scores_dict.items(), key=lambda x: x[1], reverse=True)[:5]
-            output = dict(top_5_countries)
+            output = {}
+            for cont in top_5_countries:
+                output[cont[0]] = [country_scores_dict[cont[0]], ethical_score(priority,sdg_information[cont[0]])]
         else:
             new_country_list = set(new_country_list)
             new_country_list = list(new_country_list)
