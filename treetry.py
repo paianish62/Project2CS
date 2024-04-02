@@ -15,10 +15,11 @@ Copyright © 2023 GeoInvest. All rights reserved.
 
 gdp_info = load_data.load_all_series(load_data.API_KEY, load_data.gdp_series_ids)
 cpi_info = load_data.load_all_series(load_data.API_KEY, load_data.cpi_series_ids)
-#sectors_info = load_data.extract_sector_gdp_percentage(load_data.sector_info_file, load_data.countries_of_interest)
+sectors_info = load_data.extract_sector_gdp_percentage(load_data.sector_info_file, load_data.countries_of_interest)
 interest = load_data.extract_interest_time_series_data(load_data.interest_info_file, load_data.countries_of_interest)
 region_development = load_data.extract_region_info(load_data.region_info_file, load_data.countries_of_interest)
 sdg_info = load_data.extract_sdg_info(load_data.sdg_info_file, load_data.countries_of_interest)
+
 
 class Tree:
     """
@@ -146,7 +147,7 @@ def ethical_score(priority: list[str], sdg_information) -> int:
     return (scores[priority[0]] * 0.4) + (scores[priority[1]] * 0.35) + (scores[priority[2]] * 0.25)
 
 
-def classify_long_term_investments(gdp_info: Any, gdp_per_capita_info: Any) -> tuple[list, list]:
+def classify_long_term_investments(gdp_info: Any) -> tuple[list, list]:
     """
     Classify countries based on their ave rage GDP growth rate from 1980 to 2019.
 
@@ -157,7 +158,6 @@ def classify_long_term_investments(gdp_info: Any, gdp_per_capita_info: Any) -> t
     - A list of country codes suitable for long-term investment.
     """
 
-    long_term_investment_temp = []
     long_term_investment_countries = []
     short_term_investment_countries = []
 
@@ -174,19 +174,10 @@ def classify_long_term_investments(gdp_info: Any, gdp_per_capita_info: Any) -> t
 
         # Filter countries based on long-term/short-term growth criteria
         if avg_growth_rate_lt > 2:
-            long_term_investment_temp.append(country1)
+            long_term_investment_countries.append(country1)
 
         if not avg_growth_rate_st < 0:
             short_term_investment_countries.append(country1)
-
-    # Filter based on GDP per capita growth rate
-    for country2, df2 in gdp_per_capita_info:
-        per_capita = df2[(df2['date'] >= 1980) & (df2['date'] <= 2019)].copy()
-        per_capita['growth_rate'] = per_capita['value'].pct_change() * 100
-        per_capita_rate = per_capita['growth_rate'].mean()
-
-        if per_capita_rate > 2 and country2 in long_term_investment_temp:
-            long_term_investment_countries.append(country2)
 
     return (long_term_investment_countries, short_term_investment_countries)
 
@@ -264,28 +255,28 @@ def calculate_economic_performance(gdp_info, cpi_info, interest_info, sdg_info) 
     economic_performance_scores = {}
 
     for country, gdp_df in gdp_info.items():
-        #GDP
+        # GDP
         # Filter the GDP data for the desired period and calculate the growth rate
         period_gdp_df = gdp_df[(gdp_df['date'] >= 1980) & (gdp_df['date'] <= 2019)].copy()
         period_gdp_df['growth_rate'] = period_gdp_df['value'].pct_change().fillna(0)
         # Normalize the average GDP growth rate across the period for the country (also takes care of negative values)
         normalized_gdp_growth = normalize_series(period_gdp_df['growth_rate'].mean())
 
-        #Inflation
+        # Inflation
         # Filter the CPI data for the desired period and calculate the growth rate
         period_cpi_df = cpi_info[country]
         period_cpi_df = period_cpi_df[(period_cpi_df['date'] >= 1980) & (period_cpi_df['date'] <= 2019)].copy()
         period_cpi_df['inflation_rate'] = period_cpi_df['value'].pct_change().fillna(0)
         normalized_cpi_inflation = 100 - normalize_series(period_cpi_df['inflation_rate'].mean())
 
-        #Interest rates
+        # Interest rates
         # Filter the Intersest data for the desired period and calculate the growth rate
         period_interest_df = interest_info[country]
         period_interest_df = period_interest_df[
             (period_interest_df['date'] >= 1980) & (period_interest_df['date'] <= 2019)].copy()
         normalized_interest_rate = 100 - normalize_series(period_interest_df['value'].mean())
 
-        #SDG
+        # SDG
         # Retrieve the SDG 8 score for the country
         sdg8_score = sum(sdg_info[country][8])/2
 
