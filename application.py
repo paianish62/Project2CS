@@ -282,7 +282,7 @@ def run():
     region_subtitle = ttk.Label(master=app, text=region_subtitle_text, font=('Arial', 12, 'italic'),  padding=padd)
     region_subtitle.grid(row=4, column=1, sticky='nw')
 
-    region_values = ['Americas', 'Africa', 'Asia', 'Europe', 'Oceana']
+    region_values = ['Americas', 'Africa', 'Asia', 'Europe', 'Oceania']
     region_combo = ttk.Combobox(master=app, values=region_values, state='readonly')
     region_combo.set('Region')
     region_combo.grid(row=5, column=1, sticky='nwse', padx=(18, 100), pady=(5, 0))
