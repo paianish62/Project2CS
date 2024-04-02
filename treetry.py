@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Any, Optional, List
 import load_data
-
+import pandas as pd
 """
 This file assess and categorizes countries for investment opportunities ,based on their economic performance and 
 ethical standings. It features the implementation of a Tree data structure to organize countries according to various 
@@ -15,11 +15,10 @@ Copyright © 2023 GeoInvest. All rights reserved.
 
 gdp_info = load_data.load_all_series(load_data.API_KEY, load_data.gdp_series_ids)
 cpi_info = load_data.load_all_series(load_data.API_KEY, load_data.cpi_series_ids)
-sectors_info = load_data.extract_sector_gdp_percentage(load_data.sector_info_file, load_data.countries_of_interest)
+#sectors_info = load_data.extract_sector_gdp_percentage(load_data.sector_info_file, load_data.countries_of_interest)
 interest = load_data.extract_interest_time_series_data(load_data.interest_info_file, load_data.countries_of_interest)
-region_development = load_data.extract_region_info(load_data.region_info_file, load_data.countries_of_interest)
+#region_development = load_data.extract_region_info(load_data.region_info_file, load_data.countries_of_interest)
 sdg_info = load_data.extract_sdg_info(load_data.sdg_info_file, load_data.countries_of_interest)
-
 
 class Tree:
     """
@@ -229,12 +228,15 @@ def normalize_series(series):
     Returns:
     - A pandas Series where each value is normalized to a scale of 0 to 100.
     """
-    # Subtract the minimum value in the series from every element. This shifts the series
-    # such that its minimum value is now 0.
-    # Divide the shifted series by the range (max - min) of the original series.
-    # This scales the series to have a maximum value of 1.
-    # Multiply by 100 to scale the series to a range between 0 and 100.
-    return 100 * (series - series.min()) / (series.max() - series.min())
+    min_val = series.min()
+    max_val = series.max()
+
+    # Check if the series is constant or all NaN; return the series unchanged or a default value
+    if pd.isnull(min_val) or pd.isnull(max_val) or min_val == max_val:
+        return series  # or any default value you deem appropriate
+
+    # Perform normalization
+    return 100 * (series - min_val) / (max_val - min_val)
 
 
 def calculate_economic_performance(gdp_info, cpi_info, interest_info, sdg_info) -> dict[str, int]:
@@ -255,28 +257,33 @@ def calculate_economic_performance(gdp_info, cpi_info, interest_info, sdg_info) 
     economic_performance_scores = {}
 
     for country, gdp_df in gdp_info.items():
-        # GDP
+        #GDP
         # Filter the GDP data for the desired period and calculate the growth rate
         period_gdp_df = gdp_df[(gdp_df['date'] >= 1980) & (gdp_df['date'] <= 2019)].copy()
         period_gdp_df['growth_rate'] = period_gdp_df['value'].pct_change().fillna(0)
         # Normalize the average GDP growth rate across the period for the country (also takes care of negative values)
         normalized_gdp_growth = normalize_series(period_gdp_df['growth_rate'].mean())
 
-        # Inflation
+        #Inflation
         # Filter the CPI data for the desired period and calculate the growth rate
         period_cpi_df = cpi_info[country]
         period_cpi_df = period_cpi_df[(period_cpi_df['date'] >= 1980) & (period_cpi_df['date'] <= 2019)].copy()
         period_cpi_df['inflation_rate'] = period_cpi_df['value'].pct_change().fillna(0)
         normalized_cpi_inflation = 100 - normalize_series(period_cpi_df['inflation_rate'].mean())
 
-        # Interest rates
-        # Filter the Intersest data for the desired period and calculate the growth rate
-        period_interest_df = interest_info[country]
-        period_interest_df = period_interest_df[
-            (period_interest_df['date'] >= 1980) & (period_interest_df['date'] <= 2019)].copy()
-        normalized_interest_rate = 100 - normalize_series(period_interest_df['value'].mean())
-
-        # SDG
+        #Interest rates
+        if country in interest_info['Country Name'].values:
+            country_interest_df = interest_info[interest_info['Country Name'] == country]
+            # Selecting years 1980 to 2019 and dropping NaN values for accurate mean calculation
+            interest_rates = country_interest_df.loc[:, '1980':'2019'].dropna(axis=1)
+            if not interest_rates.empty:
+                average_interest_rate = interest_rates.mean(axis=1).values[0]
+                normalized_interest_rate = 100 - normalize_series(average_interest_rate)
+            else:
+                normalized_interest_rate = 0  # Use 0 or an appropriate default value if no data is available
+        else:
+            normalized_interest_rate = 0  # Default value if the country is not found in the interest_info
+        #SDG
         # Retrieve the SDG 8 score for the country
         sdg8_score = sum(sdg_info[country][8])/2
 
@@ -286,7 +293,7 @@ def calculate_economic_performance(gdp_info, cpi_info, interest_info, sdg_info) 
                          (normalized_interest_rate * 0.2) + \
                          (sdg8_score * 0.2)
 
-        economic_performance_scores[country] = round(economic_score)
+        economic_performance_scores[country] = (economic_score)
 
     return economic_performance_scores
 
