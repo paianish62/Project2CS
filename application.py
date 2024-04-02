@@ -31,9 +31,23 @@ def show_output():
     output_title = ttk.Label(master=output, text=output_title_text, font='Arial 23 bold', padding=(20, 30, 0, 20))
     output_title.grid(row=1, column=1, sticky='nw')
 
+    # Getting the final data and sorting and ranking it.
     final_data = {'India': [50, 60], 'Canada': [70, 30], 'Germany': [80, 90], 'India1': [50, 60], 'Canada1': [70, 30]}
     eco_scores = [final_data[i][0] for i in final_data]
     ethic_scores = [final_data[i][1] for i in final_data]
+    avg_scores = {}
+    for i in final_data:
+        avg_score = sum(final_data[i]) / 2
+        if avg_score not in avg_scores:
+            avg_scores[avg_score] = [i]
+        else:
+            avg_scores[avg_score].append(i)
+    sorted_avg_scores = sorted(list(avg_scores.keys()), reverse=True)
+    ranked_countries = []
+    print(avg_scores)
+    print(sorted_avg_scores)
+    for i in sorted_avg_scores:
+        ranked_countries.extend(avg_scores[i])
 
     plt.ioff()
     fig1, ax1 = plt.subplots(figsize=(4, 3))  # Adjust figsize as needed
@@ -94,21 +108,21 @@ def show_output():
 
     # Table View
 
-    columns = ('Rank', 'Country', 'Economic Score', 'Ethical Score')
+    columns = ('Rank', 'Country', 'Average Score', 'Economic Score', 'Ethical Score')
     table = ttk.Treeview(output, columns=columns, show='headings')
     for col in columns:
         table.heading(col, text=col, anchor=tk.CENTER)
         table.column(col, anchor="center")
 
     main_data = []
-    for i in final_data:
-        temp_list = [i, final_data[i][0], final_data[i][1]]
-        main_data.append(temp_list)
-
     rank = 1
-    for row in main_data:
-        table.insert('', tk.END, values=[rank] + row)
+    for i in ranked_countries:
+        temp_list = [rank, i, sum(final_data[i])/2, final_data[i][0], final_data[i][1]]
+        main_data.append(temp_list)
         rank += 1
+
+    for row in main_data:
+        table.insert('', tk.END, values=row)
 
     table.grid(row=4, column=1, sticky='ew', padx=(20, 20), pady=(0, 100))
 
@@ -124,11 +138,12 @@ def run():
         """
         abcd
         """
-        region = region_combo.get()
-        status = dev_combo.get()
-        industry = ind_combo.get()
-        tree_list = [region, status, industry]
-        blank = ['Region', 'Status', 'Sector']
+        region = region_combo.get().lower()
+        status = dev_combo.get().lower()
+        term = inv_combo.get().lower()
+        industry = ind_combo.get().lower()
+        tree_list = [region, status, term, industry]
+        blank = ['Region', 'Status', 'Sector', 'Term']
         form_status = False
         ethic_status = False
         rank_repeat = False
@@ -220,14 +235,14 @@ def run():
 
     app = tk.Tk()
     app.title('Global Investment Recommender System')
-    app.geometry('630x800')
+    app.geometry('630x1000')
     app.columnconfigure(0, weight=1)
     app.columnconfigure(1, weight=3)
     app.columnconfigure(2, weight=1)
 
     # Project Title + Subtext
     title_text = '🌐  Global Investment Recommender System'
-    title = ttk.Label(master=app, text=title_text, font='Arial 23 bold',  padding=(20, 30, 0, 0))
+    title = ttk.Label(master=app, text=title_text, font='Arial 23 bold',  padding=(20, 20, 0, 0))
     title.grid(row=1, column=1, sticky='nw')
 
     subtitle1 = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut \nlabore '
@@ -237,7 +252,7 @@ def run():
 
     # Region
     region_title_text = 'Region*'
-    region_title = ttk.Label(master=app, text=region_title_text, font='Arial 20 bold',  padding=(20, 20, 0, 0))
+    region_title = ttk.Label(master=app, text=region_title_text, font='Arial 20 bold',  padding=(20, 15, 0, 0))
     region_title.grid(row=3, column=1, sticky='nw')
 
     region_subtitle_text = 'In which region are you considering making investments?'
@@ -245,14 +260,14 @@ def run():
     region_subtitle = ttk.Label(master=app, text=region_subtitle_text, font=('Arial', 12, 'italic'),  padding=padd)
     region_subtitle.grid(row=4, column=1, sticky='nw')
 
-    region_values = ['Americas', 'Africa', 'Asia', 'Middle East', 'Europe', 'Oceana']
+    region_values = ['Americas', 'Africa', 'Asia', 'Europe', 'Oceana']
     region_combo = ttk.Combobox(master=app, values=region_values, state='readonly')
     region_combo.set('Region')
     region_combo.grid(row=5, column=1, sticky='nwse', padx=(18, 100), pady=(5, 0))
 
     # Developed or Emerging
     dev_title_text = 'Economic Development Status*'
-    dev_title = ttk.Label(master=app, text=dev_title_text, font='Arial 20 bold',  padding=(20, 20, 0, 0))
+    dev_title = ttk.Label(master=app, text=dev_title_text, font='Arial 20 bold',  padding=(20, 15, 0, 0))
     dev_title.grid(row=6, column=1, sticky='nw')
 
     dev_subtitle_text = 'Do you have a preference for investing in developed or emerging countries?'
@@ -264,71 +279,86 @@ def run():
     dev_combo.set('Status')
     dev_combo.grid(row=8, column=1, sticky='nwse', padx=(18, 100), pady=(5, 0))
 
+    # Investment Terms
+
+    inv_title_text = 'Investment Terms*'
+    inv_title = ttk.Label(master=app, text=inv_title_text, font='Arial 20 bold',  padding=(20, 15, 0, 0))
+    inv_title.grid(row=9, column=1, sticky='nw')
+
+    inv_subtitle_text = "What's your investment horizon: short-term or long-term?"
+    inv_subtitle = ttk.Label(master=app, text=inv_subtitle_text, font=('Arial', 12, 'italic'),  padding=(20, 5, 0, 0))
+    inv_subtitle.grid(row=10, column=1, sticky='nw')
+
+    inv_values = ['Long Term', 'Short Term']
+    inv_combo = ttk.Combobox(master=app, values=inv_values, state='readonly')
+    inv_combo.set('Term')
+    inv_combo.grid(row=11, column=1, sticky='nwse', padx=(18, 100), pady=(5, 0))
+
     # Industries
     ind_title_text = 'Sector*'
-    ind_title = ttk.Label(master=app, text=ind_title_text, font='Arial 20 bold',  padding=(20, 20, 0, 0))
-    ind_title.grid(row=9, column=1, sticky='nw')
+    ind_title = ttk.Label(master=app, text=ind_title_text, font='Arial 20 bold',  padding=(20, 15, 0, 0))
+    ind_title.grid(row=12, column=1, sticky='nw')
 
     ind_subtitle_text = 'Which sectors are of interest to you for potential investment?'
     ind_subtitle = ttk.Label(master=app, text=ind_subtitle_text, font=('Arial', 12, 'italic'),  padding=(20, 5, 0, 0))
-    ind_subtitle.grid(row=10, column=1, sticky='nw')
+    ind_subtitle.grid(row=13, column=1, sticky='nw')
 
     ind_values = ['Primary', 'Secondary', 'Tertiary']
     ind_combo = ttk.Combobox(master=app, values=ind_values, state='readonly')
     ind_combo.set('Sector')
-    ind_combo.grid(row=11, column=1, sticky='nwse', padx=(18, 100), pady=(5, 0))
+    ind_combo.grid(row=14, column=1, sticky='nwse', padx=(18, 100), pady=(5, 0))
 
     # Ethical Priority
     ethics_title_text = 'Ethical Priority*'
-    ethics_title = ttk.Label(master=app, text=ethics_title_text, font='Arial 20 bold',  padding=(20, 20, 0, 0))
-    ethics_title.grid(row=12, column=1, sticky='nw')
+    ethics_title = ttk.Label(master=app, text=ethics_title_text, font='Arial 20 bold',  padding=(20, 15, 0, 0))
+    ethics_title.grid(row=15, column=1, sticky='nw')
 
     ethics_subtitle1 = 'Please prioritize the following three categories\n'
     ethics_subtitle_text = ethics_subtitle1 + '(1 indicating the highest priority and 3 the lowest priority.)'
     padd_e = (20, 5, 0, 0)
     ethics_subtitle = ttk.Label(master=app, text=ethics_subtitle_text, font=('Arial', 12, 'italic'),  padding=padd_e)
-    ethics_subtitle.grid(row=13, column=1, sticky='nw')
+    ethics_subtitle.grid(row=16, column=1, sticky='nw')
     ranks = ['1', '2', '3']
 
     # Ethic 1: Environment
     env_subtitle_text = 'Environment'
     env_subtitle = ttk.Label(master=app, text=env_subtitle_text, font=('Arial', 16),  padding=(20, 10, 0, 0))
-    env_subtitle.grid(row=14, column=1, sticky='nw')
+    env_subtitle.grid(row=17, column=1, sticky='nw')
     env_combo = ttk.Combobox(master=app, values=ranks, state='readonly', width=10)
     env_combo.set('Rank')
-    env_combo.grid(row=14, column=1, sticky='ne', padx=(0, 100), pady=(10, 0))
+    env_combo.grid(row=17, column=1, sticky='ne', padx=(0, 100), pady=(10, 0))
 
     # Ethic 2: Equity Score
     equi_subtitle_text = 'Equity'
     equi_subtitle = ttk.Label(master=app, text=equi_subtitle_text, font=('Arial', 16),  padding=(20, 15, 0, 0))
-    equi_subtitle.grid(row=15, column=1, sticky='nw')
+    equi_subtitle.grid(row=18, column=1, sticky='nw')
     equi_combo = ttk.Combobox(master=app, values=ranks, state='readonly', width=10)
     equi_combo.set('Rank')
-    equi_combo.grid(row=15, column=1, sticky='ne', padx=(0, 100), pady=(15, 0))
+    equi_combo.grid(row=18, column=1, sticky='ne', padx=(0, 100), pady=(15, 0))
 
     # Ethic 3: Fair Labour Treatment
     flt_subtitle_text = 'Fair Labour Treatment'
     flt_subtitle = ttk.Label(master=app, text=flt_subtitle_text, font=('Arial', 16),  padding=(20, 15, 0, 0))
-    flt_subtitle.grid(row=16, column=1, sticky='nw')
+    flt_subtitle.grid(row=19, column=1, sticky='nw')
     flt_combo = ttk.Combobox(master=app, values=ranks, state='readonly', width=10)
     flt_combo.set('Rank')
-    flt_combo.grid(row=16, column=1, sticky='ne', padx=(0, 100), pady=(15, 0))
+    flt_combo.grid(row=19, column=1, sticky='ne', padx=(0, 100), pady=(15, 0))
 
     # Submit
     submit = ttk.Button(master=app, text='Submit', command=submit_func)
-    submit.grid(row=17, column=1, sticky='nswe', padx=(20, 100), pady=(20, 0))
+    submit.grid(row=20, column=1, sticky='nswe', padx=(20, 100), pady=(15, 0))
 
     # Help
     help_text = 'Any term you do not understand? please select it and press the Help button'
     help_subtitle = ttk.Label(master=app, text=help_text, font=('Arial', 13),  padding=(20, 25, 0, 0))
-    help_subtitle.grid(row=18, column=1, sticky='nw')
+    help_subtitle.grid(row=21, column=1, sticky='nw')
     terms = ['Economic Development Status', 'Sector', 'Developed', 'Emerging', 'Primary', 'Secondary',
              'Tertiary', 'Equity', 'Fair Labour Treatment']
     help_combo = ttk.Combobox(master=app, values=terms, state='readonly', width=37)
     help_combo.set('Select')
-    help_combo.grid(row=19, column=1, sticky='nw', padx=(18, 100), pady=(5, 0))
+    help_combo.grid(row=22, column=1, sticky='nw', padx=(18, 100), pady=(5, 0))
     help_btn = ttk.Button(master=app, text='Help', command=help_func)
-    help_btn.grid(row=19, column=1, sticky='ne', padx=(20, 100), pady=(5, 0))
+    help_btn.grid(row=22, column=1, sticky='ne', padx=(20, 100), pady=(5, 0))
 
     app.mainloop()
 

@@ -352,6 +352,24 @@ def add_countries_to_tree(dt: Tree, region_development, sectors_info, gdp_info, 
             if 'Short Run' in investment_term:
                 dt.add_country([region, development_status, sector, 'Short Run', ethical_category], country)
 
+def search_country(user_criteria, tree, lis, num) -> list:
+    options = [["good", "bad"], ["emerging", "developing"], ["primary", "secondary", "tertiary"],
+               ["long run", "short run"], ["europe", "asia", "oceania", "americas", "africa"]]
+    if not lis or num == 5:
+        return lis
+    else:
+        crit = user_criteria[-1 - num]
+        lis_temp = []
+        for option in options:
+            if crit in option:
+                temp_option = option.copy()
+                temp_option.remove(crit)
+                for c in option:
+                    user_criteria_temp = user_criteria.remove(crit)
+                    user_criteria_temp.insert(-1 - num, c)
+                    lis_temp.append(tree.query(user_criteria_temp))
+         return search_country(user_criteria, tree, lis_temp, num + 1)
+
 
 def main_func(country_info_df, sectors_info, gdp_info, per_capita_info, sdg_information, priority, user_criteria,
               cpi_info, interest_info, sdg8_scores) -> dict:
