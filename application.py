@@ -13,9 +13,24 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
+import treetry
+import load_data
+
+gdp_info = load_data.load_all_series(load_data.API_KEY, load_data.gdp_series_ids)
+cpi_info = load_data.load_all_series(load_data.API_KEY, load_data.cpi_series_ids)
+sectors_info = load_data.extract_sector_gdp_percentage(load_data.sector_info_file, load_data.countries_of_interest)
+interest = load_data.extract_interest_time_series_data(load_data.interest_info_file, load_data.countries_of_interest)
+region_development = load_data.extract_region_info(load_data.region_info_file, load_data.countries_of_interest)
+sdg_info = load_data.extract_sdg_info(load_data.sdg_info_file, load_data.countries_of_interest)
+countries_of_interest = {'United States': 'US', 'Canada': 'CA', 'Brazil': 'BR', 'Mexico': 'MX', 'Argentina': 'AR',
+                         'Uruguay': 'UY', 'South Africa': 'ZA', 'Mauritius': 'MU', 'Botswana': 'BW', 'Australia': 'AU',
+                         'New Zealand': 'NZ', 'Singapore': 'SG', 'China': 'CN', 'India': 'IN', 'Japan': 'JP',
+                         'Russia': 'RU', 'South Korea': 'KR', 'Indonesia': 'ID', 'Saudi Arabia': 'SA', 'Qatar': 'QA',
+                         'Turkey': 'TR', 'Oman': 'OM', 'Germany': 'DE', 'United Kingdom': 'GB', 'France': 'FR',
+                         'Italy': 'IT', 'Spain': 'ES', 'Netherlands': 'NL', 'Switzerland': 'CH', 'Poland': 'PL'}
 
 
-def show_output():
+def show_output(treelist: list, ethiclist: list):
     """
     abcd
     :return:
@@ -23,7 +38,7 @@ def show_output():
 
     output = tk.Toplevel()
     output.title('Global Investment Recommender System')
-    output.geometry('1000x750')
+    output.geometry('1250x750')
     output.columnconfigure(0, weight=1)
     output.columnconfigure(1, weight=6)
     output.columnconfigure(2, weight=1)
@@ -32,12 +47,14 @@ def show_output():
     output_title.grid(row=1, column=1, sticky='nw')
 
     # Getting the final data and sorting and ranking it.
-    final_data = {'India': [50, 60], 'Canada': [70, 30], 'Germany': [80, 90], 'India1': [50, 60], 'Canada1': [70, 30]}
-    eco_scores = [final_data[i][0] for i in final_data]
-    ethic_scores = [final_data[i][1] for i in final_data]
+    countries_query = treetry.main_func(region_development, sectors_info, gdp_info, sdg_info, ethiclist, treelist,
+                                        cpi_info, interest)
+    final_data = countries_query
+    eco_scores = [round(final_data[i][0], 2) for i in final_data]
+    ethic_scores = [round(final_data[i][1], 2) for i in final_data]
     avg_scores = {}
     for i in final_data:
-        avg_score = sum(final_data[i]) / 2
+        avg_score = round(sum(final_data[i]) / 2, 2)
         if avg_score not in avg_scores:
             avg_scores[avg_score] = [i]
         else:
@@ -49,7 +66,8 @@ def show_output():
 
     plt.ioff()
     fig1, ax1 = plt.subplots(figsize=(4, 3))  # Adjust figsize as needed
-    ax1.bar(final_data.keys(), eco_scores, color='#7889ED')
+    country_codes = [countries_of_interest[i] for i in final_data]
+    ax1.bar(country_codes, eco_scores, color='#7889ED')
     ax1.set_title("Countries by Economic Score", color='white')
     ax1.set_ylabel("Economic Score", color='white')
     ax1.set_facecolor('#121828')
@@ -63,7 +81,7 @@ def show_output():
 
     plt.ioff()
     fig2, ax2 = plt.subplots(figsize=(4, 3))  # Adjust figsize as needed
-    ax2.bar(final_data.keys(), ethic_scores, color='#F06449')
+    ax2.bar(country_codes, ethic_scores, color='#F06449')
     ax2.set_title("Countries by Ethical Score", color='white')
     ax2.set_ylabel("Ethical Score", color='white')
     ax2.set_facecolor('#121828')
@@ -106,7 +124,7 @@ def show_output():
 
     # Table View
 
-    columns = ('Rank', 'Country', 'Average Score', 'Economic Score', 'Ethical Score')
+    columns = ('Rank', 'Country', 'Country Code', 'Average Score', 'Economic Score', 'Ethical Score')
     table = ttk.Treeview(output, columns=columns, show='headings')
     for col in columns:
         table.heading(col, text=col, anchor=tk.CENTER)
@@ -115,7 +133,10 @@ def show_output():
     main_data = []
     rank = 1
     for i in ranked_countries:
-        temp_list = [rank, i, sum(final_data[i])/2, final_data[i][0], final_data[i][1]]
+        eco_score = round(final_data[i][0], 2)
+        avg = round(sum(final_data[i])/2, 2)
+        ethic_score = round(final_data[i][1], 2)
+        temp_list = [rank, i, countries_of_interest[i], avg, eco_score, ethic_score]
         main_data.append(temp_list)
         rank += 1
 
@@ -191,7 +212,7 @@ def run():
                 title='Submitted',
                 message='Form successfully submitted'
             )
-            show_output()
+            show_output(tree_list, ethic_list)
 
     def help_func():
         """
@@ -290,7 +311,7 @@ def run():
     inv_subtitle = ttk.Label(master=app, text=inv_subtitle_text, font=('Arial', 12, 'italic'),  padding=(20, 5, 0, 0))
     inv_subtitle.grid(row=10, column=1, sticky='nw')
 
-    inv_values = ['Long Term', 'Short Term']
+    inv_values = ['Long Run', 'Short Run']
     inv_combo = ttk.Combobox(master=app, values=inv_values, state='readonly')
     inv_combo.set('Term')
     inv_combo.grid(row=11, column=1, sticky='nwse', padx=(18, 100), pady=(5, 0))
@@ -351,7 +372,7 @@ def run():
 
     # Help
     help_text = 'Any term you do not understand? please select it and press the Help button'
-    help_subtitle = ttk.Label(master=app, text=help_text, font=('Arial', 13),  padding=(20, 25, 0, 0))
+    help_subtitle = ttk.Label(master=app, text=help_text, font=('Arial', 13),  padding=(20, 20, 0, 0))
     help_subtitle.grid(row=21, column=1, sticky='nw')
     terms = ['Economic Development Status', 'Investment Terms', 'Sector', 'Developed', 'Emerging', 'Primary',
              'Secondary', 'Tertiary', 'Long Term', 'Short Term', 'Equity', 'Fair Labour Treatment']
@@ -364,4 +385,5 @@ def run():
     app.mainloop()
 
 
-run()
+if __name__ == "__main__":
+    run()

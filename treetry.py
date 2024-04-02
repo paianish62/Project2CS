@@ -96,18 +96,6 @@ class Tree:
                 return []  # changes
 
 
-tree = Tree("World")
-tree.add_country(["Europe", "Developed", "Tertiary", "Long Run"], "England")
-tree.add_country(["Asia", "Emerging", "Primary", "Short Run"], "India")
-print(tree.query(["Europe", "Developed", "Tertiary", "Long Run"]))
-
-"""
-(i) Environmental Score - 7, 11, 12, 13, 14 and 15
-(ii) Equity Score - 5, 10 and 16
-(iii) Fair Labour Treatment - 1, 2, 3, 4 and 6
-"""
-
-
 def ethical_score(priority: list[str], sdg_information) -> int:
     """
     Calculates the ethical score based on user priorities and the trend for improvement of
@@ -391,7 +379,9 @@ def main_func(country_info_df, sectors_info, gdp_info, sdg_information, priority
         new_country_list = search_country(criteria, dt, [], 0)
         if not new_country_list:
             top_5_countries = sorted(country_scores_dict.items(), key=lambda x: x[1], reverse=True)[:5]
-            output = dict(top_5_countries)
+            output = {}
+            for cont in top_5_countries:
+                output[cont[0]] = [country_scores_dict[cont[0]], ethical_score(priority,sdg_information[cont[0]])]
         else:
             new_country_list = set(new_country_list)
             new_country_list = list(new_country_list)
