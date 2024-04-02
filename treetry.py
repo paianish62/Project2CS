@@ -354,7 +354,7 @@ def add_countries_to_tree(dt: Tree, region_development, sectors_info, gdp_info, 
 
 
 def main_func(country_info_df, sectors_info, gdp_info, per_capita_info, sdg_information, priority, user_criteria,
-              cpi_info, interest_info, sdg8_scores):
+              cpi_info, interest_info, sdg8_scores) -> dict:
     """
     Main function which creates tree and returns ranked list of countries to user
     """
@@ -363,17 +363,22 @@ def main_func(country_info_df, sectors_info, gdp_info, per_capita_info, sdg_info
     add_countries_to_tree(dt, country_info_df, sectors_info, gdp_info, per_capita_info, sdg_information, priority)
     unranked_countries = dt.query(user_criteria)
     country_scores_dict = calculate_economic_performance(gdp_info, cpi_info, interest_info, sdg8_scores)
-    for country in unranked_countries:
-        output[country] = [country_scores_dict[country], ethical_score(user_criteria, sdg_information)]
+
+    if not unranked_countries:
+        new_country_list = search_country(user_criteria, dt, [], 0)
+        if not new_country_list:
+            top_5_countries = sorted(country_scores_dict.items(), key=lambda x: x[1], reverse=True)[:5]
+            output = dict(top_5_countries)
+        else:
+            new_country_list = set(new_country_list)
+            new_country_list = list(new_country_list)
+            for country in new_country_list:
+                output[country] = [country_scores_dict[country], ethical_score(user_criteria, sdg_information)]
+    else:
+        for country in unranked_countries:
+            output[country] = [country_scores_dict[country], ethical_score(user_criteria, sdg_information)]
 
     return output
-
-    # sorted_country_scores = sorted(country_scores_dict.items(), key=lambda x: x[1])
-    # for country_and_rank in sorted_country_scores:
-    #     if country_and_rank[1] in unranked_countries:
-    #         ranked_countries.append(country_and_rank[1])
-    #
-    # return ranked_countries
 
 
 # tree = Tree("World")
@@ -390,4 +395,4 @@ def main_func(country_info_df, sectors_info, gdp_info, per_capita_info, sdg_info
 # Post Covid measurement
 # Doctests for main_func and economic score
 # Output ka input: {'country':[*economic score*, *ethical score*]} /or/ {*rank*:['country', *economic score*, *ethical score*]}
-#
+# Criteria Example: [Region, Development Status, Long Term/Short Term, Sector, Good/Bad]
