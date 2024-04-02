@@ -20,6 +20,7 @@ interest = load_data.extract_interest_time_series_data(load_data.interest_info_f
 region_development = load_data.extract_region_info(load_data.region_info_file, load_data.countries_of_interest)
 sdg_info = load_data.extract_sdg_info(load_data.sdg_info_file, load_data.countries_of_interest)
 
+
 class Tree:
     """
     A recursive tree data structure.
@@ -248,21 +249,21 @@ def calculate_economic_performance(gdp_info, cpi_info, interest_info, sdg_info) 
     economic_performance_scores = {}
 
     for country, gdp_df in gdp_info.items():
-        #GDP
+        # GDP
         # Filter the GDP data for the desired period and calculate the growth rate
         period_gdp_df = gdp_df[(gdp_df['date'] >= 1980) & (gdp_df['date'] <= 2019)].copy()
         period_gdp_df['growth_rate'] = period_gdp_df['value'].pct_change().fillna(0)
         # Normalize the average GDP growth rate across the period for the country (also takes care of negative values)
         normalized_gdp_growth = normalize_series(period_gdp_df['growth_rate'].mean())
 
-        #Inflation
+        # Inflation
         # Filter the CPI data for the desired period and calculate the growth rate
         period_cpi_df = cpi_info[country]
         period_cpi_df = period_cpi_df[(period_cpi_df['date'] >= 1980) & (period_cpi_df['date'] <= 2019)].copy()
         period_cpi_df['inflation_rate'] = period_cpi_df['value'].pct_change().fillna(0)
         normalized_cpi_inflation = 100 - normalize_series(period_cpi_df['inflation_rate'].mean())
 
-        #Interest rates
+        # Interest rates
         if country in interest_info['Country Name'].values:
             country_interest_df = interest_info[interest_info['Country Name'] == country]
             # Selecting years 1980 to 2019 and dropping NaN values for accurate mean calculation
@@ -274,7 +275,7 @@ def calculate_economic_performance(gdp_info, cpi_info, interest_info, sdg_info) 
                 normalized_interest_rate = 0  # Use 0 or an appropriate default value if no data is available
         else:
             normalized_interest_rate = 0  # Default value if the country is not found in the interest_info
-        #SDG
+        # SDG
         # Retrieve the SDG 8 score for the country
         sdg8_score = sum(sdg_info[country][8])/2
 
@@ -284,7 +285,7 @@ def calculate_economic_performance(gdp_info, cpi_info, interest_info, sdg_info) 
                          (normalized_interest_rate * 0.2) + \
                          (sdg8_score * 0.2)
 
-        economic_performance_scores[country] = (economic_score)
+        economic_performance_scores[country] = economic_score
 
     return economic_performance_scores
 
@@ -300,13 +301,16 @@ def add_countries_to_tree(dt: Tree, region_development, sectors_info, gdp_info, 
     Parameters:
     - dt: An instance of the Tree class where countries will be categorized and added.
     - country_info_df: DataFrame with columns for country name, emerging/developed status, and region.
-    - sectors_info: DataFrame with information on the sectors (Primary, Secondary, Tertiary) each country participates in.
-    - gdp_info: DataFrame with GDP growth rate information used for classifying countries into long/short investment terms.
+    - sectors_info: DataFrame with information on the sectors (Primary, Secondary, Tertiary) each
+    country participates in.
+    - gdp_info: DataFrame with GDP growth rate information used for classifying countries into
+     long/short investment terms.
     - sdg: List containing Sustainable Development Goals (SDG) scores for countries.
     - priority: List indicating the priority areas for ethical scoring, used to categorize countries ethically.
     - trends_rank: Dictionary mapping SDG scores to their improvement trends, used in ethical scoring.
 
-    This function does not return anything but updates the tree in place by adding countries according to the specified criteria.
+    This function does not return anything but updates the tree in place by adding countries according
+    to the specified criteria.
     """
     # Classify countries based on their investment potential (long-term vs short-term)
     long_term_countries, short_term_countries = classify_long_term_investments(gdp_info)
@@ -344,6 +348,7 @@ def add_countries_to_tree(dt: Tree, region_development, sectors_info, gdp_info, 
                 dt.add_country([(region.lower()), development_status.lower(), 'short run', sector.lower(),
                                 ethical_category.lower()], country)
 
+
 def search_country(user_criteria, tree, lis, num) -> list:
     options = [["good", "bad"], ["emerging", "developing"], ["primary", "secondary", "tertiary"],
                ["long run", "short run"], ["europe", "asia", "oceania", "americas", "africa"]]
@@ -379,9 +384,7 @@ def main_func(country_info_df, sectors_info, gdp_info, sdg_information, priority
         new_country_list = search_country(criteria, dt, [], 0)
         if not new_country_list:
             top_5_countries = sorted(country_scores_dict.items(), key=lambda x: x[1], reverse=True)[:5]
-            output = {}
-            for cont in top_5_countries:
-                output[cont[0]] = [country_scores_dict[cont[0]], ethical_score(priority,sdg_information[cont[0]])]
+            output = dict(top_5_countries)
         else:
             new_country_list = set(new_country_list)
             new_country_list = list(new_country_list)
@@ -404,5 +407,6 @@ def main_func(country_info_df, sectors_info, gdp_info, sdg_information, priority
 # Additional Stuff:
 # Post Covid measurement
 # Doctests for main_func and economic score
-# Output ka input: {'country':[*economic score*, *ethical score*]} /or/ {*rank*:['country', *economic score*, *ethical score*]}
+# Output ka input: {'country':[*economic score*, *ethical score*]} /or/
+# {*rank*:['country', *economic score*, *ethical score*]}
 # Criteria Example: [Region, Development Status, Long Term/Short Term, Sector, Good/Bad]
