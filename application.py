@@ -290,7 +290,7 @@ def run():
     inv_subtitle = ttk.Label(master=app, text=inv_subtitle_text, font=('Arial', 12, 'italic'),  padding=(20, 5, 0, 0))
     inv_subtitle.grid(row=10, column=1, sticky='nw')
 
-    inv_values = ['Long Term', 'Short Term']
+    inv_values = ['Long Run', 'Short Run']
     inv_combo = ttk.Combobox(master=app, values=inv_values, state='readonly')
     inv_combo.set('Term')
     inv_combo.grid(row=11, column=1, sticky='nwse', padx=(18, 100), pady=(5, 0))
