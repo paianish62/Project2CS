@@ -372,7 +372,7 @@ def search_country(user_criteria, tree, lis, num) -> list:
 
 
 def main_func(country_info_df, sectors_info, gdp_info, per_capita_info, sdg_information, priority, user_criteria,
-              cpi_info, interest_info, sdg8_scores) -> dict:
+              cpi_info, interest_info) -> dict:
     """
     Main function which creates tree and returns ranked list of countries to user
     """
@@ -380,7 +380,7 @@ def main_func(country_info_df, sectors_info, gdp_info, per_capita_info, sdg_info
     dt = Tree()
     add_countries_to_tree(dt, country_info_df, sectors_info, gdp_info, per_capita_info, sdg_information, priority)
     unranked_countries = dt.query(user_criteria)
-    country_scores_dict = calculate_economic_performance(gdp_info, cpi_info, interest_info, sdg8_scores)
+    country_scores_dict = calculate_economic_performance(gdp_info, cpi_info, interest_info, sdg_information)
 
     if not unranked_countries:
         new_country_list = search_country(user_criteria, dt, [], 0)
