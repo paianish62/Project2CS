@@ -13,12 +13,12 @@ decision-making.
 Copyright © 2023 GeoInvest. All rights reserved.
 """
 
-gdp_info = load_data.load_all_series(load_data.API_KEY, load_data.gdp_series_ids)
-cpi_info = load_data.load_all_series(load_data.API_KEY, load_data.cpi_series_ids)
-#sectors_info = load_data.extract_sector_gdp_percentage(load_data.sector_info_file, load_data.countries_of_interest)
-interest = load_data.extract_interest_time_series_data(load_data.interest_info_file, load_data.countries_of_interest)
+#gdp_info = load_data.load_all_series(load_data.API_KEY, load_data.gdp_series_ids)
+#cpi_info = load_data.load_all_series(load_data.API_KEY, load_data.cpi_series_ids)
+sectors_info = load_data.extract_sector_gdp_percentage(load_data.sector_info_file, load_data.countries_of_interest)
+#interest = load_data.extract_interest_time_series_data(load_data.interest_info_file, load_data.countries_of_interest)
 #region_development = load_data.extract_region_info(load_data.region_info_file, load_data.countries_of_interest)
-sdg_info = load_data.extract_sdg_info(load_data.sdg_info_file, load_data.countries_of_interest)
+#sdg_info = load_data.extract_sdg_info(load_data.sdg_info_file, load_data.countries_of_interest)
 
 class Tree:
     """
@@ -199,15 +199,15 @@ def map_countries_to_sectors(sectors_info):
         sectors = []
 
         # Check if the country participates in the industry sector and add 'Secondary' to the sectors list if true.
-        if row['industry']:
+        if row["Industry % of GDP"] > 25:
             sectors.append('Secondary')
 
         # Check if the country participates in the agriculture sector and add 'Primary' to the sectors list if true.
-        if row['agriculture']:
+        if row['Agriculture % of GDP'] > 5:
             sectors.append('Primary')
 
         # Check if the country participates in the services sector and add 'Tertiary' to the sectors list if true.
-        if row['services']:
+        if row['Services % of GDP'] > 50:
             sectors.append('Tertiary')
         sectors_map[row['Country/Economy']] = sectors
 
