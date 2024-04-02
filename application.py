@@ -351,7 +351,7 @@ def run():
 
     # Help
     help_text = 'Any term you do not understand? please select it and press the Help button'
-    help_subtitle = ttk.Label(master=app, text=help_text, font=('Arial', 13),  padding=(20, 25, 0, 0))
+    help_subtitle = ttk.Label(master=app, text=help_text, font=('Arial', 13),  padding=(20, 20, 0, 0))
     help_subtitle.grid(row=21, column=1, sticky='nw')
     terms = ['Economic Development Status', 'Investment Terms', 'Sector', 'Developed', 'Emerging', 'Primary',
              'Secondary', 'Tertiary', 'Long Term', 'Short Term', 'Equity', 'Fair Labour Treatment']
