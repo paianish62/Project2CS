@@ -13,12 +13,12 @@ decision-making.
 Copyright © 2023 GeoInvest. All rights reserved.
 """
 
-#gdp_info = load_data.load_all_series(load_data.API_KEY, load_data.gdp_series_ids)
-#cpi_info = load_data.load_all_series(load_data.API_KEY, load_data.cpi_series_ids)
+gdp_info = load_data.load_all_series(load_data.API_KEY, load_data.gdp_series_ids)
+cpi_info = load_data.load_all_series(load_data.API_KEY, load_data.cpi_series_ids)
 sectors_info = load_data.extract_sector_gdp_percentage(load_data.sector_info_file, load_data.countries_of_interest)
-#interest = load_data.extract_interest_time_series_data(load_data.interest_info_file, load_data.countries_of_interest)
-#region_development = load_data.extract_region_info(load_data.region_info_file, load_data.countries_of_interest)
-#sdg_info = load_data.extract_sdg_info(load_data.sdg_info_file, load_data.countries_of_interest)
+interest = load_data.extract_interest_time_series_data(load_data.interest_info_file, load_data.countries_of_interest)
+region_development = load_data.extract_region_info(load_data.region_info_file, load_data.countries_of_interest)
+sdg_info = load_data.extract_sdg_info(load_data.sdg_info_file, load_data.countries_of_interest)
 
 class Tree:
     """
@@ -181,7 +181,7 @@ def classify_long_term_investments(gdp_info: Any) -> tuple[list, list]:
     return (long_term_investment_countries, short_term_investment_countries)
 
 
-def map_countries_to_sectors(sectors_info):
+def map_countries_to_sectors(sectors_info, region_development):
     """
     Maps each country to the sectors it participates in based on a DataFrame.
 
@@ -203,13 +203,16 @@ def map_countries_to_sectors(sectors_info):
             sectors.append('Secondary')
 
         # Check if the country participates in the agriculture sector and add 'Primary' to the sectors list if true.
-        if row['Agriculture % of GDP'] > 5:
+        if row['Agriculture % of GDP'] > 3:
             sectors.append('Primary')
 
         # Check if the country participates in the services sector and add 'Tertiary' to the sectors list if true.
         if row['Services % of GDP'] > 50:
             sectors.append('Tertiary')
         sectors_map[row['Country/Economy']] = sectors
+    for cont in region_development:
+        if cont not in sectors_map:
+            sectors_map[cont] = ['primary', 'secondary', 'tertiary']
 
     return sectors_map
 
@@ -298,7 +301,7 @@ def calculate_economic_performance(gdp_info, cpi_info, interest_info, sdg_info) 
     return economic_performance_scores
 
 
-def add_countries_to_tree(dt: Tree, region_development, sectors_info, gdp_info, per_capita_info, sdg_information,
+def add_countries_to_tree(dt: Tree, region_development, sectors_info, gdp_info, sdg_information,
                           priority) -> None:
     """
     Iterates over all countries and adds them to the tree based on various criteria including
@@ -311,7 +314,6 @@ def add_countries_to_tree(dt: Tree, region_development, sectors_info, gdp_info, 
     - country_info_df: DataFrame with columns for country name, emerging/developed status, and region.
     - sectors_info: DataFrame with information on the sectors (Primary, Secondary, Tertiary) each country participates in.
     - gdp_info: DataFrame with GDP growth rate information used for classifying countries into long/short investment terms.
-    - per_capita_info: DataFrame with GDP per capita growth rate information, also used for investment term classification.
     - sdg: List containing Sustainable Development Goals (SDG) scores for countries.
     - priority: List indicating the priority areas for ethical scoring, used to categorize countries ethically.
     - trends_rank: Dictionary mapping SDG scores to their improvement trends, used in ethical scoring.
@@ -319,38 +321,40 @@ def add_countries_to_tree(dt: Tree, region_development, sectors_info, gdp_info, 
     This function does not return anything but updates the tree in place by adding countries according to the specified criteria.
     """
     # Classify countries based on their investment potential (long-term vs short-term)
-    long_term_countries, short_term_countries = classify_long_term_investments(gdp_info, per_capita_info)
+    long_term_countries, short_term_countries = classify_long_term_investments(gdp_info)
     # Map each country to the sectors it participates in
-    sectors_map = map_countries_to_sectors(sectors_info)
+    sectors_map = map_countries_to_sectors(sectors_info, region_development)
 
     # Iterate over each country in the country information DataFrame
     for cont in region_development:
         country = cont
 
         # Development status (emerging/developed)'
-        development_status = 'Developed' if region_development[cont][1] == 1 else 'Emerging'
+        development_status = 'developed' if region_development[cont][1] == 1 else 'emerging'
 
-        region = region_development[cont][0]  # Geographical region
+        region = region_development[country][0]  # Geographical region
 
         # Determine the ethical category based on scoring
-        ethical_category = 'Good' if ethical_score(priority, sdg_information) >= 50 else 'Bad'
+        ethical_category = 'good' if ethical_score(priority, sdg_information[country]) >= 50 else 'bad'
 
         # Determine the investment term based on classification
         investment_term = []
         if country in long_term_countries:
-            investment_term.append('Long Run')
+            investment_term.append('long run')
         if country in short_term_countries:
-            investment_term.append('Short Run')
+            investment_term.append('short run')
 
         # Retrieve the list of sectors the country is involved in
         country_sectors = sectors_map[country]
 
         # Add the country to the tree under each sector it participates in
         for sector in country_sectors:
-            if 'Long Run' in investment_term:
-                dt.add_country([region, development_status, sector, 'Long Run', ethical_category], country)
-            if 'Short Run' in investment_term:
-                dt.add_country([region, development_status, sector, 'Short Run', ethical_category], country)
+            if 'long run' in investment_term:
+                dt.add_country([(region.lower()), development_status.lower(), 'long run', sector.lower(),
+                                ethical_category.lower()], country)
+            if 'short run' in investment_term:
+                dt.add_country([(region.lower()), development_status.lower(), 'short run', sector.lower(),
+                                ethical_category.lower()], country)
 
 def search_country(user_criteria, tree, lis, num) -> list:
     options = [["good", "bad"], ["emerging", "developing"], ["primary", "secondary", "tertiary"],
@@ -368,22 +372,22 @@ def search_country(user_criteria, tree, lis, num) -> list:
                     user_criteria_temp = user_criteria.remove(crit)
                     user_criteria_temp.insert(-1 - num, c)
                     lis_temp.append(tree.query(user_criteria_temp))
-         return search_country(user_criteria, tree, lis_temp, num + 1)
+        return search_country(user_criteria, tree, lis_temp, num + 1)
 
 
-def main_func(country_info_df, sectors_info, gdp_info, per_capita_info, sdg_information, priority, user_criteria,
+def main_func(country_info_df, sectors_info, gdp_info, sdg_information, priority, user_criteria,
               cpi_info, interest_info) -> dict:
     """
     Main function which creates tree and returns ranked list of countries to user
     """
     output = {}
     dt = Tree()
-    add_countries_to_tree(dt, country_info_df, sectors_info, gdp_info, per_capita_info, sdg_information, priority)
-    unranked_countries = dt.query(user_criteria)
+    add_countries_to_tree(dt, country_info_df, sectors_info, gdp_info, sdg_information, priority)
+    criteria = user_criteria + ['good']
+    unranked_countries = dt.query(criteria)
     country_scores_dict = calculate_economic_performance(gdp_info, cpi_info, interest_info, sdg_information)
-
     if not unranked_countries:
-        new_country_list = search_country(user_criteria, dt, [], 0)
+        new_country_list = search_country(criteria, dt, [], 0)
         if not new_country_list:
             top_5_countries = sorted(country_scores_dict.items(), key=lambda x: x[1], reverse=True)[:5]
             output = dict(top_5_countries)
@@ -391,14 +395,11 @@ def main_func(country_info_df, sectors_info, gdp_info, per_capita_info, sdg_info
             new_country_list = set(new_country_list)
             new_country_list = list(new_country_list)
             for country in new_country_list:
-                output[country] = [country_scores_dict[country], ethical_score(user_criteria, sdg_information)]
+                output[country] = [country_scores_dict[country], ethical_score(priority, sdg_information[country])]
     else:
         for country in unranked_countries:
-            output[country] = [country_scores_dict[country], ethical_score(user_criteria, sdg_information)]
-
+            output[country] = [country_scores_dict[country], ethical_score(priority, sdg_information[country])]
     return output
-
-
 # tree = Tree("World")
 # add_countries_to_tree(tree, country_info_df, sectors_info, gdp_info, sdg, priority)
 
