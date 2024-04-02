@@ -394,19 +394,3 @@ def main_func(country_info_df, sectors_info, gdp_info, sdg_information, priority
         for country in unranked_countries:
             output[country] = [country_scores_dict[country], ethical_score(priority, sdg_information[country])]
     return output
-# tree = Tree("World")
-# add_countries_to_tree(tree, country_info_df, sectors_info, gdp_info, sdg, priority)
-
-# def economics_score(indicator:
-# List Contries & Data on interest raes and SDGS
-# for loop on the countries
-# CPI, Interest Rates, GDP
-# Ethical Score = 0.4(1) + 0.3(2) + 0.2(3) + 0.1(
-# [equ, env, lab]
-
-# Additional Stuff:
-# Post Covid measurement
-# Doctests for main_func and economic score
-# Output ka input: {'country':[*economic score*, *ethical score*]} /or/
-# {*rank*:['country', *economic score*, *ethical score*]}
-# Criteria Example: [Region, Development Status, Long Term/Short Term, Sector, Good/Bad]
