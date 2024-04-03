@@ -370,7 +370,7 @@ def search_country(user_criteria, tree, lis, num) -> list:
 
 
 def main_func(country_info_df, sectors_info, gdp_info, sdg_information, priority, user_criteria,
-              cpi_info, interest_info) -> dict:
+              cpi_info, interest_info) -> list[dict[str| Any, list[int]] | int]:
     """
     Main function which creates tree and returns ranked list of countries to user
     """
@@ -380,17 +380,22 @@ def main_func(country_info_df, sectors_info, gdp_info, sdg_information, priority
     criteria = user_criteria + ['good']
     unranked_countries = dt.query(criteria)
     country_scores_dict = calculate_economic_performance(gdp_info, cpi_info, interest_info, sdg_information)
+    recurse = 0
     if not unranked_countries:
         new_country_list = search_country(criteria, dt, [], 0)
         if not new_country_list:
             top_5_countries = sorted(country_scores_dict.items(), key=lambda x: x[1], reverse=True)[:5]
-            output = dict(top_5_countries)
+            output = {}
+            recurse = 2
+            for cont in top_5_countries:
+                output[cont[0]] = [country_scores_dict[cont[0]], ethical_score(priority,sdg_information[cont[0]])]
         else:
             new_country_list = set(new_country_list)
             new_country_list = list(new_country_list)
+            recurse = 1
             for country in new_country_list:
                 output[country] = [country_scores_dict[country], ethical_score(priority, sdg_information[country])]
     else:
         for country in unranked_countries:
             output[country] = [country_scores_dict[country], ethical_score(priority, sdg_information[country])]
-    return output
+    return [output, recurse]
