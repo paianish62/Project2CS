@@ -1,17 +1,17 @@
+"""
+This file assess and categorizes countries for investment opportunities ,based on their economic performance and
+ethical standings. It features the implementation of a Tree data structure to organize countries according to various
+criteria, including GDP growth, CPI inflation, interest rates, sector participation, and Sustainable Development
+Goals (SDGs). Functions within this file handle the normalization of economic data, calculation of ethical
+scores, classification of countries into investment terms, and mapping of countries to their respective economic
+sectors. The goal is to provide a structured and queryabl representation of countries for informed investment
+decision-making.
+Copyright © 2023 GeoInvest. All rights reserved.
+"""
 from __future__ import annotations
 from typing import Any, Optional, List
 import load_data
 import pandas as pd
-"""
-This file assess and categorizes countries for investment opportunities ,based on their economic performance and 
-ethical standings. It features the implementation of a Tree data structure to organize countries according to various 
-criteria, including GDP growth, CPI inflation, interest rates, sector participation, and Sustainable Development 
-Goals (SDGs). Functions within this file handle the normalization of economic data, calculation of ethical 
-scores, classification of countries into investment terms, and mapping of countries to their respective economic 
-sectors. The goal is to provide a structured and queryabl representation of countries for informed investment 
-decision-making.
-Copyright © 2023 GeoInvest. All rights reserved.
-"""
 
 gdp_info = load_data.load_all_series(load_data.API_KEY, load_data.gdp_series_ids)
 cpi_info = load_data.load_all_series(load_data.API_KEY, load_data.cpi_series_ids)
