@@ -49,7 +49,18 @@ def show_output(treelist: list, ethiclist: list):
     # Getting the final data and sorting and ranking it.
     countries_query = treetry.main_func(region_development, sectors_info, gdp_info, sdg_info, ethiclist, treelist,
                                         cpi_info, interest)
-    final_data = countries_query
+    final_data = countries_query[0]
+    if countries_query[1] == 1:
+        rec_title_text = ("Sorry, we did not find countries that match your specification. However, we found some "
+                          "that were close.")
+        rec_title = ttk.Label(master=output, text=rec_title_text, font='Arial 18', padding=(20, 10, 0, 20))
+        rec_title.grid(row=2, column=1, sticky='nw')
+    elif countries_query[1] == 2:
+        rec_title_text = ("Sorry, your search did not return any specific or similar matches, but here is a list of "
+                          "the top 5 countries to invest in ranked.")
+        rec_title = ttk.Label(master=output, text=rec_title_text, font='Arial 18', padding=(20, 10, 0, 20))
+        rec_title.grid(row=2, column=1, sticky='nw')
+
     eco_scores = [round(final_data[i][0], 2) for i in final_data]
     ethic_scores = [round(final_data[i][1], 2) for i in final_data]
     avg_scores = {}
@@ -65,7 +76,7 @@ def show_output(treelist: list, ethiclist: list):
         ranked_countries.extend(sorted(avg_scores[i], reverse=True))
 
     plt.ioff()
-    fig1, ax1 = plt.subplots(figsize=(4, 3))  # Adjust figsize as needed
+    fig1, ax1 = plt.subplots(figsize=(4, 3))
     country_codes = [countries_of_interest[i] for i in final_data]
     ax1.bar(country_codes, eco_scores, color='#7889ED')
     ax1.set_title("Countries by Economic Score", color='white')
@@ -80,7 +91,7 @@ def show_output(treelist: list, ethiclist: list):
     ax1.tick_params(axis='y', colors='white')
 
     plt.ioff()
-    fig2, ax2 = plt.subplots(figsize=(4, 3))  # Adjust figsize as needed
+    fig2, ax2 = plt.subplots(figsize=(4, 3))
     ax2.bar(country_codes, ethic_scores, color='#F06449')
     ax2.set_title("Countries by Ethical Score", color='white')
     ax2.set_ylabel("Ethical Score", color='white')
@@ -94,7 +105,7 @@ def show_output(treelist: list, ethiclist: list):
     ax2.tick_params(axis='y', colors='white')
 
     frame = tk.Frame(output)
-    frame.grid(row=2, column=1, sticky='nsew')
+    frame.grid(row=3, column=1, sticky='nsew')
 
     canvas_eco = FigureCanvasTkAgg(fig1, frame)
     canvas_eco.draw()
@@ -109,7 +120,7 @@ def show_output(treelist: list, ethiclist: list):
 
     output_title_text = "Here are the countries ranked:"
     output_title = ttk.Label(master=output, text=output_title_text, font='Arial 23 bold', padding=(20, 30, 0, 20))
-    output_title.grid(row=3, column=1, sticky='nw')
+    output_title.grid(row=4, column=1, sticky='nw')
 
     # List View
 
@@ -143,7 +154,7 @@ def show_output(treelist: list, ethiclist: list):
     for row in main_data:
         table.insert('', tk.END, values=row)
 
-    table.grid(row=4, column=1, sticky='ew', padx=(20, 20), pady=(0, 100))
+    table.grid(row=5, column=1, sticky='ew', padx=(20, 20), pady=(0, 100))
 
     output.mainloop()
 
