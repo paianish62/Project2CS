@@ -326,4 +326,3 @@ def load_stored_pickle(file_path):
     object_file = pickle.load(handler)
     handler.close()
     return object_file
-
