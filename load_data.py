@@ -34,44 +34,20 @@ placed in the `datasets` directory as specified by the file path variables at th
 Copyright © 2023 Global Investment Recommender System (GIRS). All rights reserved.
 """
 
+import pickle
+from typing import Any
 import requests
 import pandas as pd
-import pickle
+
 
 API_KEY = "9afd106bb0146138b12fa9e6a1237c94"
-
-countries_of_interest = {
-    'United States' : 'US',
-    'Canada' : 'CA',
-    'Brazil' : 'BR',
-    'Mexico' : 'MX',
-    'Argentina' : 'AR',
-    'Uruguay' : 'UY',
-    'South Africa' : 'ZA',
-    'Mauritius' : 'MU',
-    'Botswana' : 'BW',
-    'Australia' : 'AU',
-    'New Zealand' : 'NZ',
-    'Singapore' : 'SG',
-    'China' : 'CN',
-    'India' : 'IN',
-    'Japan' : 'JP',
-    'Russia' : 'RU',
-    'South Korea' : 'KR',
-    'Indonesia' : 'ID',
-    'Saudi Arabia' : 'SA',
-    'Qatar' : 'QA',
-    'Turkey' : 'TR',
-    'Oman' : 'OM',
-    'Germany' : 'DE',
-    'United Kingdom' : 'GB',
-    'France' : 'FR',
-    'Italy' : 'IT',
-    'Spain' : 'ES',
-    'Netherlands' : 'NL',
-    'Switzerland' : 'CH',
-    'Poland' : 'PL'
-    }
+countries_of_interest = {'United States': 'US', 'Canada': 'CA', 'Brazil': 'BR', 'Mexico': 'MX', 'Argentina': 'AR',
+                         'Uruguay': 'UY', 'South Africa': 'ZA', 'Mauritius': 'MU', 'Botswana': 'BW',
+                         'Australia': 'AU', 'New Zealand': 'NZ', 'Singapore': 'SG', 'China': 'CN', 'India': 'IN',
+                         'Japan': 'JP', 'Russia': 'RU', 'South Korea': 'KR', 'Indonesia': 'ID',
+                         'Saudi Arabia': 'SA', 'Qatar': 'QA', 'Turkey': 'TR', 'Oman': 'OM', 'Germany': 'DE',
+                         'United Kingdom': 'GB', 'France': 'FR', 'Italy': 'IT', 'Spain': 'ES',
+                         'Netherlands': 'NL', 'Switzerland': 'CH', 'Poland': 'PL'}
 
 sector_info_file = 'datasets/gdp_info.csv'
 interest_info_file = 'datasets/interest_info.csv'
@@ -143,7 +119,8 @@ cpi_series_ids = {
     'Poland': 'DDOE02PLA086NWDB'
 }
 
-def extract_year(year_string):
+
+def extract_year(year_string: str) -> int:
     """
     Extract the year from a string.
 
@@ -155,7 +132,8 @@ def extract_year(year_string):
     """
     return int(year_string[:4])
 
-def extract_val(val_string):
+
+def extract_val(val_string: str) -> float:
     """
     Convert a string to a float.
 
@@ -167,7 +145,8 @@ def extract_val(val_string):
     """
     return float(val_string)
 
-def fetch_fred_series(api_key, series_id):
+
+def fetch_fred_series(api_key: str, series_id: str) -> Any:
     """
     Fetch a time series dataset from the FRED API.
 
@@ -179,7 +158,7 @@ def fetch_fred_series(api_key, series_id):
         DataFrame: A pandas DataFrame with two columns: 'date' and 'value', representing the time series data.
         If the fetch fails, it returns an empty DataFrame.
     """
-    base_url = f"https://api.stlouisfed.org/fred/series/observations"
+    base_url = "https://api.stlouisfed.org/fred/series/observations"
     params = {
         "series_id": series_id,
         "api_key": api_key,
@@ -196,7 +175,8 @@ def fetch_fred_series(api_key, series_id):
         print(f"Failed to fetch data for series {series_id}. Status code: {response.status_code}")
         return pd.DataFrame()
 
-def load_all_series(api_key, series_ids, storeas='temp.pickle'):
+
+def load_all_series(api_key: str, series_ids: dict, storeas: str = 'temp.pickle') -> dict:
     """
     Load time series data for all specified series IDs and store it in a pickle file.
 
@@ -206,7 +186,8 @@ def load_all_series(api_key, series_ids, storeas='temp.pickle'):
         storeas (str): The file path where the collected data should be stored as a pickle.
 
     Returns:
-        dict: A dictionary where each key is a country name and its value is the corresponding time series data as a DataFrame.
+        dict: A dictionary where each key is a country name and its value is the corresponding time series
+        data as a DataFrame.
     """
     all_series_data = {}
     for country_code, series_id in series_ids.items():
@@ -216,7 +197,8 @@ def load_all_series(api_key, series_ids, storeas='temp.pickle'):
         pickle.dump(all_series_data, f)
     return all_series_data
 
-def extract_sector_gdp_percentage(csv_file_path, countries_of_interest):
+
+def extract_sector_gdp_percentage(csv_file_path: str, countries_of_interest: list) -> Any:
     """
     Extract sector-wise GDP percentages from a CSV file for specified countries.
 
@@ -225,7 +207,8 @@ def extract_sector_gdp_percentage(csv_file_path, countries_of_interest):
         countries_of_interest (list): A list of country names of interest.
 
     Returns:
-        DataFrame: A pandas DataFrame containing GDP percentages for agriculture, industry, and services sectors for the specified countries.
+        DataFrame: A pandas DataFrame containing GDP percentages for agriculture, industry, and services
+        sectors for the specified countries.
     """
     economic_data_df = pd.read_csv(csv_file_path)
     filtered_df = economic_data_df[economic_data_df['Country/Economy'].isin(countries_of_interest)]
@@ -240,7 +223,9 @@ def extract_sector_gdp_percentage(csv_file_path, countries_of_interest):
     })
     return sector_gdp_percentage_df.reset_index()
 
-def extract_interest_time_series_data(csv_file_path, countries_of_interest, start_year=None, end_year=None):
+
+def extract_interest_time_series(csv_file_path: str, countries_of_interest: list, start_year: int = None,
+                                 end_year: int = None) -> Any:
     """
     Extract time series data for interest rates from a CSV file, optionally filtered by year.
 
@@ -262,7 +247,8 @@ def extract_interest_time_series_data(csv_file_path, countries_of_interest, star
         filtered_df = filtered_df[columns_of_interest]
     return filtered_df.reset_index()
 
-def extract_sdg_info(csv_file_path, countries_of_interest):
+
+def extract_sdg_info(csv_file_path: str, countries_of_interest: list) -> dict:
     """
     Extract information about Sustainable Development Goals (SDGs) for specified countries from a CSV file.
 
@@ -271,7 +257,8 @@ def extract_sdg_info(csv_file_path, countries_of_interest):
         countries_of_interest (list): A list of country names of interest.
 
     Returns:
-        dict: A nested dictionary where the first level keys are country names, and each value is another dictionary with SDG goals as keys and lists containing trend scores and actual scores as values.
+        dict: A nested dictionary where the first level keys are country names, and each value is another dictionary
+        with SDG goals as keys and lists containing trend scores and actual scores as values.
     """
     sdg_data_df = pd.read_csv(csv_file_path)
     sdg_info_dict = {}
@@ -295,14 +282,16 @@ def extract_sdg_info(csv_file_path, countries_of_interest):
                 trend = 20
             try:
                 score = int(score)
-            except:
+            except Exception:
                 score = -1
             sdg_info_dict[country][x + 1] = [trend, score]
     return sdg_info_dict
 
+
 region_info_file = 'datasets/country_info.csv'
 
-def extract_region_info(csv_file_path, countries_of_interest):
+
+def extract_region_info(csv_file_path: str, countries_of_interest: dict) -> dict:
     """
     Extract regional and development status information for specified countries from a CSV file.
 
@@ -311,12 +300,14 @@ def extract_region_info(csv_file_path, countries_of_interest):
         countries_of_interest (dict): A dictionary mapping country names to their ISO codes.
 
     Returns:
-        dict: A dictionary where keys are country names and values are lists containing the region name and development status (1 for developed, 0 for developing).
+        dict: A dictionary where keys are country names and values are lists containing the region name and
+        development status (1 for developed, 0 for developing).
     """
     region_data_df = pd.read_csv(csv_file_path)
     region_info_dict = {}
     for country in countries_of_interest:
-        temp_df = region_data_df.loc[region_data_df['ISO Code (usa-census)'] == countries_of_interest[country]].reset_index()
+        temp_df = region_data_df.loc[region_data_df['ISO Code (usa-census)'] ==
+                                     countries_of_interest[country]].reset_index()
         develop_status = temp_df.iloc[0]['Developed / Developing Countries (M49)']
         if develop_status == 'Developed':
             develop_status = 1
@@ -325,7 +316,8 @@ def extract_region_info(csv_file_path, countries_of_interest):
         region_info_dict[country] = [temp_df.iloc[0]['Region Name_en (M49)'], develop_status]
     return region_info_dict
 
-def load_stored_pickle(file_path):
+
+def load_stored_pickle(file_path: str) -> Any:
     """
     Load and return the content of a pickle file.
 
@@ -335,7 +327,16 @@ def load_stored_pickle(file_path):
     Returns:
         Any: The object stored in the pickle file.
     """
-    handler = open(file_path, 'rb')
-    object_file = pickle.load(handler)
-    handler.close()
+    with open(file_path, 'rb') as handler:
+        object_file = pickle.load(handler)
     return object_file
+
+
+# if __name__ == "__main__":
+
+    # import python_ta
+    # python_ta.check_all(config={
+    #     'extra-imports': ['requests', 'pandas', 'pickle'],
+    #     'allowed-io': ['fetch_fred_series', 'load_all_series', 'load_stored_pickle'],
+    #     'max-line-length': 120
+    # })

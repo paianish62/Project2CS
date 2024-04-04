@@ -6,7 +6,7 @@ import pandas as pd
 gdp_info = load_data.load_stored_pickle('gdp.pickle')
 cpi_info = load_data.load_stored_pickle('cpi.pickle')
 sectors_info = load_data.extract_sector_gdp_percentage(load_data.sector_info_file, load_data.countries_of_interest)
-interest = load_data.extract_interest_time_series_data(load_data.interest_info_file, load_data.countries_of_interest)
+interest = load_data.extract_interest_time_series(load_data.interest_info_file, load_data.countries_of_interest)
 region_development = load_data.extract_region_info(load_data.region_info_file, load_data.countries_of_interest)
 sdg_info = load_data.extract_sdg_info(load_data.sdg_info_file, load_data.countries_of_interest)
 
