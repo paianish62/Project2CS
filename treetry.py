@@ -10,16 +10,8 @@ Copyright © 2023 Global Investment Recommender System (GIRS). All rights reserv
 """
 from __future__ import annotations
 from typing import Any, Optional, List
-import load_data
 import pandas as pd
 from testing import gdp_test, cpi_test, sectors_test, interest_test, region_test, sdg_test
-
-gdp_info = load_data.load_stored_pickle('gdp.pickle')
-cpi_info = load_data.load_stored_pickle('cpi.pickle')
-sectors_info = load_data.extract_sector_gdp_percentage(load_data.sector_info_file, load_data.countries_of_interest)
-interest = load_data.extract_interest_time_series_data(load_data.interest_info_file, load_data.countries_of_interest)
-region_development = load_data.extract_region_info(load_data.region_info_file, load_data.countries_of_interest)
-sdg_info = load_data.extract_sdg_info(load_data.sdg_info_file, load_data.countries_of_interest)
 
 
 class Tree:
@@ -246,7 +238,7 @@ def classify_long_term_investments(gdp_info: Any) -> tuple[list, list]:
     return (long_term_investment_countries, short_term_investment_countries)
 
 
-def map_countries_to_sectors(sectors_info, region_development):
+def map_countries_to_sectors(sectors_info: Any, region_development: Any) -> dict[str, list[str]]:
     """
     Maps each country to the sectors it participates in based on a DataFrame.
 
@@ -284,7 +276,7 @@ def map_countries_to_sectors(sectors_info, region_development):
     return sectors_map
 
 
-def normalize_series(series):
+def normalize_series(series: Any) -> Any:
     """
     Normalizes a pandas Series to a range between 0 and 100.
 
@@ -309,7 +301,7 @@ def normalize_series(series):
     return 100 * (series - min_val) / (max_val - min_val)
 
 
-def calculate_economic_performance(gdp_info, cpi_info, interest_info, sdg_info) -> dict[str, int]:
+def calculate_economic_performance(gdp_info: Any, cpi_info: Any, interest_info: Any, sdg_info: Any) -> dict[str, int]:
 
     """
     Calculates the economic performance scores for each country based on normalized
@@ -370,8 +362,8 @@ def calculate_economic_performance(gdp_info, cpi_info, interest_info, sdg_info) 
     return economic_performance_scores
 
 
-def add_countries_to_tree(dt: Tree, region_development, sectors_info, gdp_info, sdg_information,
-                          priority) -> None:
+def add_countries_to_tree(dt: Tree, region_development: Any, sectors_info: Any, gdp_info: Any, sdg_information: Any,
+                          priority: list[str]) -> None:
     """
     Iterates over all countries and adds them to the tree based on various criteria including
     development status, region, sector participation, investment term (long/short run), and
@@ -433,7 +425,7 @@ def add_countries_to_tree(dt: Tree, region_development, sectors_info, gdp_info, 
                                 ethical_category.lower()], country)
 
 
-def search_country(user_criteria, tree, lis, num) -> list:
+def search_country(user_criteria: list[str], tree: Tree, lis: list, num: int) -> list[str]:
     """
         Recursively searches for countries in a tree that closely match the user's criteria by
         sequentially modifying one criterion at a time if an exact match is not found.
@@ -480,8 +472,8 @@ def search_country(user_criteria, tree, lis, num) -> list:
         return search_country(user_criteria, tree, lis_temp, num + 1)
 
 
-def main_func(country_info_df, sectors_info, gdp_info, sdg_information, priority, user_criteria,
-              cpi_info, interest_info) -> list[dict[str| Any, list[int]] | int]:
+def main_func(country_info_df: Any, sectors_info: Any, gdp_info: Any, sdg_information: Any, priority: Any,
+              user_criteria: Any, cpi_info: Any, interest_info: Any) -> Any:
     """
     Main function which creates tree and returns ranked list of countries to user
 
