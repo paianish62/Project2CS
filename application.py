@@ -6,7 +6,7 @@ Utilizing matplotlib for data visualization, the application presents a comparat
 based on economic and ethical scores. The goal is to provide users with a comprehensive and accessible tool
 for making informed investment decisions grounded in both economic performance and ethical considerations.
 
-Copyright © 2023 GeoInvest. All rights reserved.
+Copyright © 2023 Global Investment Recommender System (GIRS). All rights reserved.
 """
 
 import tkinter as tk
@@ -19,8 +19,11 @@ import load_data
 
 def show_output(treelist: list, ethiclist: list) -> None:
     """
-    abcd
-    :return:
+    This function is designed to display the output after analyzing the user's inputs.
+    It presents visuals for 'Countries by Economic Growth' and 'Countries by Ethical Score,'
+    as well as a table listing all the recommended countries ranked according to their average
+    score.
+
     """
 
     output = tk.Toplevel()
@@ -77,6 +80,7 @@ def show_output(treelist: list, ethiclist: list) -> None:
     for i in sorted_avg_scores:
         ranked_countries.extend(sorted(avg_scores[i], reverse=True))
 
+    # Plotting Graphs
     plt.ioff()
     fig1, ax1 = plt.subplots(figsize=(4, 3))
     country_codes = [countries_of_interest[k] for k in final_data]
@@ -152,12 +156,16 @@ def show_output(treelist: list, ethiclist: list) -> None:
 
 def run() -> None:
     """
-
-    :return:
+    This function displays the input screen, presented as a form where users can fill in the
+    necessary input fields and submit them for processing by our backend functionality.
     """
     def submit_func() -> None:
         """
-        abcd
+        This function is called whenever the user presses the submit button.
+        It handles cases where the user has left any input fields empty or has assigned the
+        same ranking to any of the ethical categories. If none of these issues are present,
+        it submits the user's inputs for processing and analysis and then displays the
+        output screen.
         """
         sector = ind_combo.get().lower()
         tree_list = [region_combo.get().lower(), dev_combo.get().lower(), inv_combo.get().lower(), sector]
@@ -215,8 +223,9 @@ def run() -> None:
 
     def help_func() -> None:
         """
-
-        :return:
+        This function is called whenever the user presses the help button.
+        It checks which term the user has selected and displays its meaning or
+        definition using a messagebox
         """
         eds = "A classification indicating a country's level of economic growth and stability."
         sec = "A segment of the economy, often categorized into primary (resource extraction), \
@@ -266,8 +275,8 @@ def run() -> None:
     title = ttk.Label(master=app, text=title_text, font='Arial 23 bold', padding=(20, 20, 0, 0))
     title.grid(row=1, column=1, sticky='nw')
 
-    subtitle1 = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut \nlabore '
-    subtitle_text = subtitle1 + 'et dolore magna aliqua. Ut enim ad minim veniam, quis nostrudexercitation ullamco.'
+    subtitle1 = 'Empower your investments. Leverage economic data and ethical insights to \nsmartly navigate'
+    subtitle_text = subtitle1 + 'global markets and uncover tailored opportunities.'
     subtitle = ttk.Label(master=app, text=subtitle_text, font='Arial 11', padding=(20, 8, 0, 0))
     subtitle.grid(row=2, column=1, sticky='nw')
 

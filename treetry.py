@@ -6,7 +6,7 @@ Goals (SDGs). Functions within this file handle the normalization of economic da
 scores, classification of countries into investment terms, and mapping of countries to their respective economic
 sectors. The goal is to provide a structured and queryabl representation of countries for informed investment
 decision-making.
-Copyright © 2023 GeoInvest. All rights reserved.
+Copyright © 2023 Global Investment Recommender System (GIRS). All rights reserved.
 """
 from __future__ import annotations
 from typing import Any, Optional, List

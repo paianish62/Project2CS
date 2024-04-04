@@ -1,0 +1,11 @@
+# CSC111 Project 2
+
+# Testing and code checking
+python-ta~=2.7.0
+
+# Graphics and data visualization
+matplotlib==3.8.4
+
+# Data Loading and Processing
+pandas==2.2.1
+requests==2.31.0

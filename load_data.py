@@ -1,15 +1,26 @@
-'''
-This script provides a comprehensive toolkit for fetching, processing, and analyzing economic indicators and sustainable development data for a predefined list of countries. It leverages both the St. Louis Federal Reserve Economic Data (FRED) API for real-time economic data and local CSV files for historical and sectoral data, including GDP contributions, interest rates, Sustainable Development Goals (SDGs) progress, and regional classifications.
+"""
+This script provides a comprehensive toolkit for fetching, processing, and analyzing economic indicators and
+sustainable development data for a predefined list of countries. It leverages both the
+St. Louis Federal Reserve Economic Data (FRED) API for real-time economic data and local CSV files
+for historical and sectoral data, including GDP contributions, interest rates, Sustainable Development Goals
+(SDGs) progress, and regional classifications.
 
 Key Components:
-- Data Fetching: Uses the FRED API to retrieve time series data for economic indicators such as GDP and CPI across multiple countries.
-- Data Processing: Extracts and processes data from local CSV files for detailed analyses on GDP sector contributions, interest rates trends, and SDG achievements.
-- Sustainable Development: Evaluates countries' progress towards achieving SDGs by analyzing trends and scores from provided data.
-- Regional Information: Classifies countries into regions and development statuses (developed vs. developing) based on UN M49 standard classification.
-- Data Storage: Includes functionality to store and retrieve processed data using pickle files for efficient data management and reuse.
+-   Data Fetching: Uses the FRED API to retrieve time series data for economic indicators such as GDP and CPI across
+    multiple countries.
+-   Data Processing: Extracts and processes data from local CSV files for detailed analyses on GDP sector
+    contributions, interest rates trends, and SDG achievements.
+-   Sustainable Development: Evaluates countries' progress towards achieving SDGs by analyzing trends and
+    scores from provided data.
+-   Regional Information: Classifies countries into regions and development statuses (developed vs. developing)
+    based on UN M49 standard classification.
+-   Data Storage: Includes functionality to store and retrieve processed data using pickle files for
+    efficient data management and reuse.
 
 Usage Scenario:
-Designed for economists, policy analysts, and researchers focusing on global economic trends, sustainable development, and comparative country analysis. This toolkit streamulates the data gathering and preprocessing stages, allowing users to focus on in-depth analysis and policy formulation.
+Designed for economists, policy analysts, and researchers focusing on global economic trends, sustainable development,
+and comparative country analysis. This toolkit streamulates the data gathering and preprocessing stages, allowing users
+to focus on in-depth analysis and policy formulation.
 
 Dependencies:
 - pandas: For data manipulation and analysis.
@@ -17,9 +28,11 @@ Dependencies:
 - pickle: For data serialization and storage.
 
 Setup:
-Ensure you have a valid FRED API key set as `API_KEY` in the script. CSV files with the necessary data should be placed in the `datasets` directory as specified by the file path variables at the top of the script.
+Ensure you have a valid FRED API key set as `API_KEY` in the script. CSV files with the necessary data should be
+placed in the `datasets` directory as specified by the file path variables at the top of the script.
 
-'''
+Copyright © 2023 Global Investment Recommender System (GIRS). All rights reserved.
+"""
 
 import requests
 import pandas as pd
