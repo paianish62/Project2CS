@@ -12,6 +12,7 @@ from __future__ import annotations
 from typing import Any, Optional, List
 import load_data
 import pandas as pd
+from testing import gdp_test, cpi_test, sectors_test, interest_test, region_test, sdg_test
 
 gdp_info = load_data.load_stored_pickle('gdp.pickle')
 cpi_info = load_data.load_stored_pickle('cpi.pickle')
@@ -41,7 +42,8 @@ class Tree:
     _subtrees: list[Tree]
 
     def __init__(self, root: Optional[Any] = None, subtrees: List[Tree] = None) -> None:
-        """Initialize a new Tree with the given root value and subtrees.
+        """
+        Initialize a new Tree with the given root value and subtrees.
 
         If root is None, the tree is empty.
 
@@ -55,7 +57,7 @@ class Tree:
         """Return whether this tree is empty.
 
         >>> t1 = Tree(None, [])
-         >>> t1.is_empty()
+        >>> t1.is_empty()
         True
         >>> t2 = Tree(3, [])
         >>> t2.is_empty()
@@ -64,6 +66,21 @@ class Tree:
         return self._root is None
 
     def add_country(self, criteria_path: List[str], country: str):
+        """
+            Add a country to the tree based on a specified criteria path.
+
+            The criteria path is a list of criteria leading to the addition of a country. Each element in the
+            path represents a level in the tree, with the country being added at the leaf.
+
+            Parameters:
+                criteria_path: A list of strings, each representing a criterion in the path.
+                country: The country to add to the tree.
+
+            >>> tree = Tree("World")
+            >>> tree.add_country(["Europe", "Developed", "Tertiary", "Long Run"], "England")
+            >>> tree.is_empty()
+            False
+        """
         if not criteria_path:
             # If the criteria path is empty, add the country directly as a subtree.
             self._subtrees.append(Tree(country))
@@ -78,12 +95,63 @@ class Tree:
             subtree.add_country(criteria_path[1:], country)
 
     def _find_subtree(self, criterion: str) -> Optional[Tree]:
+        """
+            Find and return a subtree whose root matches the given criterion.
+
+            This is a helper method used internally by the Tree class to navigate its structure. It searches
+            the immediate subtrees (one level deep) of the current tree for a subtree whose root matches
+            the specified criterion. This method is primarily utilized to locate the correct position within the
+            tree for adding a new country or for querying.
+
+            Parameters:
+                criterion: A string representing the criterion to match against the roots of this tree's subtrees.
+
+            Returns:
+                The subtree whose root matches the given criterion, or None if no such subtree is found.
+
+            Examples:
+                # Assuming the tree has been populated with multiple subtrees:
+                >>> world = Tree("World")
+                >>> europe = Tree("Europe")
+                >>> asia = Tree("Asia")
+                >>> world._subtrees = [europe, asia]
+                >>> world._find_subtree("Europe") == europe
+                True
+                >>> world._find_subtree("Asia") == asia
+                True
+                >>> world._find_subtree("Africa") is None
+                True
+            """
         for subtree in self._subtrees:
             if subtree._root == criterion:
                 return subtree
         return None
 
     def query(self, criteria_path: List[str]) -> List[str]:
+        """
+        Query the tree to find countries that match a specific criteria path.
+
+        The criteria path is a list of criteria used to navigate the tree. The method returns
+        a list of countries that are found at the end of the path.
+
+        Parameters:
+            criteria_path: A list of strings, each representing a criterion in the path.
+
+        Returns:
+            A list of countries that match the criteria path.
+
+        Examples:
+            >>> tree = Tree("World")
+            >>> tree.add_country(["Europe", "Developed", "Tertiary", "Long Run"], "England")
+            >>> tree.add_country(["Asia", "Emerging", "Primary", "Short Run"], "India")
+            >>> tree.query(["Europe", "Developed", "Tertiary", "Long Run"])
+            ['England']
+            >>> tree.query(["Asia", "Emerging", "Primary", "Short Run"])
+            ['India']
+            >>> tree.query(["Africa", "Emerging", "Primary", "Short Run"])
+            []
+        """
+
         # If the criteria path is empty, return the roots of all subtrees (countries).
         if not criteria_path:
             return [subtree._root for subtree in self._subtrees]
@@ -109,7 +177,11 @@ def ethical_score(priority: list[str], sdg_information) -> int:
 
     Returns:
     - A dynamic ethical score calculated based on the user's preferences
+
+    >>> round(ethical_score(["env", "equ", "lab"], sdg_test["United States"]), 2)
+    70.41
     """
+
     environmental = 0
     equitable = 0
     labour_treatment = 0
@@ -144,6 +216,10 @@ def classify_long_term_investments(gdp_info: Any) -> tuple[list, list]:
 
     Returns:
     - A list of country codes suitable for long-term investment.
+
+    >>> long_term, short_term = classify_long_term_investments(gdp_test)
+    >>> "United States" in long_term and "United States" in short_term
+    True
     """
 
     long_term_investment_countries = []
@@ -180,6 +256,8 @@ def map_countries_to_sectors(sectors_info, region_development):
 
     Returns:
     - A dictionary where each key is a country and the value is a list of sectors it participates in.
+    >>> map_countries_to_sectors(sectors_test, region_test)
+    {'United States': ['Tertiary']}
     """
     sectors_map = {}
 
@@ -245,6 +323,8 @@ def calculate_economic_performance(gdp_info, cpi_info, interest_info, sdg_info) 
 
     Returns:
     - A dictionary mapping country codes to their economic performance scores.
+    >>> calculate_economic_performance(gdp_test, cpi_test, interest_test, sdg_test)
+    {'United States': 53.19878948848501}
     """
     economic_performance_scores = {}
 
@@ -311,6 +391,10 @@ def add_countries_to_tree(dt: Tree, region_development, sectors_info, gdp_info, 
 
     This function does not return anything but updates the tree in place by adding countries according
     to the specified criteria.
+    >>> world = Tree()
+    >>> add_countries_to_tree(world, region_test, sectors_test, gdp_test, sdg_test, ["env", "lab", "equ"])
+    >>> world.query(["americas", "developed", "long run", "tertiary", "good"])
+    ['United States']
     """
     # Classify countries based on their investment potential (long-term vs short-term)
     long_term_countries, short_term_countries = classify_long_term_investments(gdp_info)
@@ -350,6 +434,33 @@ def add_countries_to_tree(dt: Tree, region_development, sectors_info, gdp_info, 
 
 
 def search_country(user_criteria, tree, lis, num) -> list:
+    """
+        Recursively searches for countries in a tree that closely match the user's criteria by
+        sequentially modifying one criterion at a time if an exact match is not found.
+
+        Parameters:
+        - user_criteria: A list of criteria specified by the user.
+        - tree: The tree structure to be searched.
+        - lis: Initially an empty list, used to accumulate matches.
+        - num: The depth of recursion, initially set to 0, indicating the level of criteria modification.
+
+        Returns:
+        - A list of countries that match the modified criteria.
+
+        The function uses a predefined list of options for each criterion to modify one criterion
+        at a time from the user's original criteria list. It attempts to find matches by replacing
+        each criterion with other possible options, broadening the search when an exact match is not found.
+
+        Example:
+        --------
+        Given a hypothetical Tree structure `myTree` that supports a `.query()` method and the following user criteria:
+
+        >>> myTree = Tree()  # Assume this tree has been appropriately populated
+        >>> add_countries_to_tree(myTree, region_test, sectors_test, gdp_test, sdg_test, ["env", "lab", "equ"])
+        >>> search_country(["americas", "developed", "long run", "primary", "good"], myTree, [], 0)
+        ['United States']
+        """
+
     options = [["good", "bad"], ["emerging", "developing"], ["primary", "secondary", "tertiary"],
                ["long run", "short run"], ["europe", "asia", "oceania", "americas", "africa"]]
     if lis or num == 5:
@@ -373,6 +484,11 @@ def main_func(country_info_df, sectors_info, gdp_info, sdg_information, priority
               cpi_info, interest_info) -> list[dict[str| Any, list[int]] | int]:
     """
     Main function which creates tree and returns ranked list of countries to user
+
+    >>> p = ["env", "lab", "equ"]
+    >>> c = ["americas", "developed", "long run", "primary"]
+    >>> main_func(region_test, sectors_test, gdp_test, sdg_test, p, c, cpi_test, interest_test)
+    [{'United States': [53.19878948848501, 71.625]}, 1]
     """
     output = {}
     dt = Tree()
@@ -401,17 +517,16 @@ def main_func(country_info_df, sectors_info, gdp_info, sdg_information, priority
             output[country] = [country_scores_dict[country], ethical_score(priority, sdg_information[country])]
     return [output, recurse]
 
-if __name__ == '__main__':
-    import python_ta
-    python_ta.check_all(config={
-        'max-line-length': 120
-    })
-
-
 if __name__ == "__main__":
+    import doctest
+    doctest.testmod()
+
+    '''
     import python_ta
     python_ta.check_all(config={
         'extra-imports': [],
         'allowed-io': [],
         'max-line-length': 120
+
     })
+'''
