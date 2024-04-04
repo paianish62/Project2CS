@@ -401,6 +401,12 @@ def main_func(country_info_df, sectors_info, gdp_info, sdg_information, priority
             output[country] = [country_scores_dict[country], ethical_score(priority, sdg_information[country])]
     return [output, recurse]
 
+if __name__ == '__main__':
+    import python_ta
+    python_ta.check_all(config={
+        'max-line-length': 120
+    })
+
 
 if __name__ == "__main__":
     import python_ta

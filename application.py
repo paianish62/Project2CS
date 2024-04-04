@@ -40,8 +40,8 @@ def show_output(treelist: list, ethiclist: list) -> None:
                              'Qatar': 'QA',
                              'Turkey': 'TR', 'Oman': 'OM', 'Germany': 'DE', 'United Kingdom': 'GB', 'France': 'FR',
                              'Italy': 'IT', 'Spain': 'ES', 'Netherlands': 'NL', 'Switzerland': 'CH', 'Poland': 'PL'}
-    gdp_info = load_data.load_all_series(load_data.API_KEY, load_data.gdp_series_ids)
-    cpi_info = load_data.load_all_series(load_data.API_KEY, load_data.cpi_series_ids)
+    gdp_info = load_data.load_stored_pickle('gdp.pickle')
+    cpi_info = load_data.load_stored_pickle('cpi.pickle')
     sectors_info = load_data.extract_sector_gdp_percentage(load_data.sector_info_file, load_data.countries_of_interest)
     interest = load_data.extract_interest_time_series_data(load_data.interest_info_file,
                                                            load_data.countries_of_interest)
