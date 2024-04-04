@@ -16,21 +16,8 @@ import matplotlib.pyplot as plt
 import treetry
 import load_data
 
-gdp_info = load_data.load_all_series(load_data.API_KEY, load_data.gdp_series_ids)
-cpi_info = load_data.load_all_series(load_data.API_KEY, load_data.cpi_series_ids)
-sectors_info = load_data.extract_sector_gdp_percentage(load_data.sector_info_file, load_data.countries_of_interest)
-interest = load_data.extract_interest_time_series_data(load_data.interest_info_file, load_data.countries_of_interest)
-region_development = load_data.extract_region_info(load_data.region_info_file, load_data.countries_of_interest)
-sdg_info = load_data.extract_sdg_info(load_data.sdg_info_file, load_data.countries_of_interest)
-countries_of_interest = {'United States': 'US', 'Canada': 'CA', 'Brazil': 'BR', 'Mexico': 'MX', 'Argentina': 'AR',
-                         'Uruguay': 'UY', 'South Africa': 'ZA', 'Mauritius': 'MU', 'Botswana': 'BW', 'Australia': 'AU',
-                         'New Zealand': 'NZ', 'Singapore': 'SG', 'China': 'CN', 'India': 'IN', 'Japan': 'JP',
-                         'Russia': 'RU', 'South Korea': 'KR', 'Indonesia': 'ID', 'Saudi Arabia': 'SA', 'Qatar': 'QA',
-                         'Turkey': 'TR', 'Oman': 'OM', 'Germany': 'DE', 'United Kingdom': 'GB', 'France': 'FR',
-                         'Italy': 'IT', 'Spain': 'ES', 'Netherlands': 'NL', 'Switzerland': 'CH', 'Poland': 'PL'}
 
-
-def show_output(treelist: list, ethiclist: list):
+def show_output(treelist: list, ethiclist: list) -> None:
     """
     abcd
     :return:
@@ -45,14 +32,29 @@ def show_output(treelist: list, ethiclist: list):
     output_title_text = "🌍  Here's where we think you should invest:"
     output_title = ttk.Label(master=output, text=output_title_text, font='Arial 23 bold', padding=(20, 30, 0, 20))
     output_title.grid(row=1, column=1, sticky='nw')
+    countries_of_interest = {'United States': 'US', 'Canada': 'CA', 'Brazil': 'BR', 'Mexico': 'MX', 'Argentina': 'AR',
+                             'Uruguay': 'UY', 'South Africa': 'ZA', 'Mauritius': 'MU', 'Botswana': 'BW',
+                             'Australia': 'AU',
+                             'New Zealand': 'NZ', 'Singapore': 'SG', 'China': 'CN', 'India': 'IN', 'Japan': 'JP',
+                             'Russia': 'RU', 'South Korea': 'KR', 'Indonesia': 'ID', 'Saudi Arabia': 'SA',
+                             'Qatar': 'QA',
+                             'Turkey': 'TR', 'Oman': 'OM', 'Germany': 'DE', 'United Kingdom': 'GB', 'France': 'FR',
+                             'Italy': 'IT', 'Spain': 'ES', 'Netherlands': 'NL', 'Switzerland': 'CH', 'Poland': 'PL'}
+    gdp_info = load_data.load_all_series(load_data.API_KEY, load_data.gdp_series_ids)
+    cpi_info = load_data.load_all_series(load_data.API_KEY, load_data.cpi_series_ids)
+    sectors_info = load_data.extract_sector_gdp_percentage(load_data.sector_info_file, load_data.countries_of_interest)
+    interest = load_data.extract_interest_time_series_data(load_data.interest_info_file,
+                                                           load_data.countries_of_interest)
+    region_development = load_data.extract_region_info(load_data.region_info_file, load_data.countries_of_interest)
+    sdg_info = load_data.extract_sdg_info(load_data.sdg_info_file, load_data.countries_of_interest)
 
     # Getting the final data and sorting and ranking it.
     countries_query = treetry.main_func(region_development, sectors_info, gdp_info, sdg_info, ethiclist, treelist,
                                         cpi_info, interest)
     final_data = countries_query[0]
     if countries_query[1] == 1:
-        rec_title_text = ("Sorry, we did not find countries that match your specification. However, we found some "
-                          "that were close.")
+        rec_title_text = ("Sorry, we did not find countries that matched your exact specifications. However, "
+                          "we found some that were close.")
         rec_title = ttk.Label(master=output, text=rec_title_text, font='Arial 18', padding=(20, 10, 0, 20))
         rec_title.grid(row=2, column=1, sticky='nw')
     elif countries_query[1] == 2:
@@ -61,8 +63,8 @@ def show_output(treelist: list, ethiclist: list):
         rec_title = ttk.Label(master=output, text=rec_title_text, font='Arial 18', padding=(20, 10, 0, 20))
         rec_title.grid(row=2, column=1, sticky='nw')
 
-    eco_scores = [round(final_data[i][0], 2) for i in final_data]
-    ethic_scores = [round(final_data[i][1], 2) for i in final_data]
+    eco_scores = [round(final_data[p][0], 2) for p in final_data]
+    ethic_scores = [round(final_data[j][1], 2) for j in final_data]
     avg_scores = {}
     for i in final_data:
         avg_score = round(sum(final_data[i]) / 2, 2)
@@ -77,7 +79,7 @@ def show_output(treelist: list, ethiclist: list):
 
     plt.ioff()
     fig1, ax1 = plt.subplots(figsize=(4, 3))
-    country_codes = [countries_of_interest[i] for i in final_data]
+    country_codes = [countries_of_interest[k] for k in final_data]
     ax1.bar(country_codes, eco_scores, color='#7889ED')
     ax1.set_title("Countries by Economic Score", color='white')
     ax1.set_ylabel("Economic Score", color='white')
@@ -122,17 +124,6 @@ def show_output(treelist: list, ethiclist: list):
     output_title = ttk.Label(master=output, text=output_title_text, font='Arial 23 bold', padding=(20, 30, 0, 20))
     output_title.grid(row=4, column=1, sticky='nw')
 
-    # List View
-
-    # countries = list(final_data.keys())
-    # count = 4
-    # rank = 1
-    # for i in countries:
-    #     country_title = ttk.Label(master=output, text='\t'+str(rank)+'. '+i, font='Arial 18', padding=(20, 5, 0, 20))
-    #     country_title.grid(row=count, column=1, sticky='nw')
-    #     count += 1
-    #     rank += 1
-
     # Table View
 
     columns = ('Rank', 'Country', 'Country Code', 'Average Score', 'Economic Score', 'Ethical Score')
@@ -145,7 +136,7 @@ def show_output(treelist: list, ethiclist: list):
     rank = 1
     for i in ranked_countries:
         eco_score = round(final_data[i][0], 2)
-        avg = round(sum(final_data[i])/2, 2)
+        avg = round(sum(final_data[i]) / 2, 2)
         ethic_score = round(final_data[i][1], 2)
         temp_list = [rank, i, countries_of_interest[i], avg, eco_score, ethic_score]
         main_data.append(temp_list)
@@ -159,33 +150,30 @@ def show_output(treelist: list, ethiclist: list):
     output.mainloop()
 
 
-def run():
+def run() -> None:
     """
 
     :return:
     """
-    def submit_func():
+    def submit_func() -> None:
         """
         abcd
         """
-        region = region_combo.get().lower()
-        status = dev_combo.get().lower()
-        term = inv_combo.get().lower()
-        industry = ind_combo.get().lower()
-        tree_list = [region, status, term, industry]
-        blank = ['Region', 'Status', 'Sector', 'Term']
+        sector = ind_combo.get().lower()
+        tree_list = [region_combo.get().lower(), dev_combo.get().lower(), inv_combo.get().lower(), sector]
+        blank = ['region', 'status', 'sector', 'term']
         form_status = False
         ethic_status = False
         rank_repeat = False
         ethic_list = []
 
-        if any(i in tree_list for i in blank):
+        if any(n.lower() in tree_list for n in blank):
             error_str = ''
             count = 0
             for i in tree_list:
                 if i in blank:
                     count += 1
-                    error_str += str(count)+'. '+i+'\n'
+                    error_str += str(count) + '. ' + i.capitalize() + '\n'
             messagebox.showwarning(
                 title='Field(s) Empty',
                 message='The Following Fields are empty: \n' + error_str + 'Please fill them and submit again.'
@@ -197,7 +185,7 @@ def run():
         #  checking if rankings are filled or not
         if all(digit_check):
             rank = [int(env_combo.get()), int(equi_combo.get()), int(flt_combo.get())]
-            rank_repeat = any(rank.count(i) > 1 for i in rank)
+            rank_repeat = any(rank.count(m) > 1 for m in rank)
         else:
             messagebox.showwarning(
                 title='Empty Ranking(s)',
@@ -208,7 +196,7 @@ def run():
             rank_repeat_msg = 'One or More Ethical Categories have been ranked the same, '
             messagebox.showwarning(
                 title='Ranks Repeated',
-                message=rank_repeat_msg+'please rank them differently and submit again.'
+                message=rank_repeat_msg + 'please rank them differently and submit again.'
             )
 
         if all(digit_check) and (not rank_repeat):
@@ -225,7 +213,7 @@ def run():
             )
             show_output(tree_list, ethic_list)
 
-    def help_func():
+    def help_func() -> None:
         """
 
         :return:
@@ -253,7 +241,7 @@ def run():
         st = "Investments held for a short period, usually less than a year, focusing on quick gains."
         terms_dict = {'Economic Development Status': eds, 'Sector': sec, 'Developed': dev, 'Emerging': em,
                       'Primary': prim, 'Secondary': second, 'Tertiary': tert, 'Equity': equit,
-                      'Fair Labour Treatment': labour, 'Investment Terms': invt, 'Long Term': lt, 'Short Term': st}
+                      'Fair Labour Treatment': labour, 'Investment Terms': invt, 'Long Run': lt, 'Short Run': st}
 
         if help_combo.get() == 'Select':
             messagebox.showinfo(
@@ -263,7 +251,7 @@ def run():
         else:
             messagebox.showinfo(
                 title=help_combo.get(),
-                message=help_combo.get()+': '+terms_dict[help_combo.get()]
+                message=help_combo.get() + ': ' + terms_dict[help_combo.get()]
             )
 
     app = tk.Tk()
@@ -275,22 +263,22 @@ def run():
 
     # Project Title + Subtext
     title_text = '🌐  Global Investment Recommender System'
-    title = ttk.Label(master=app, text=title_text, font='Arial 23 bold',  padding=(20, 20, 0, 0))
+    title = ttk.Label(master=app, text=title_text, font='Arial 23 bold', padding=(20, 20, 0, 0))
     title.grid(row=1, column=1, sticky='nw')
 
     subtitle1 = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut \nlabore '
     subtitle_text = subtitle1 + 'et dolore magna aliqua. Ut enim ad minim veniam, quis nostrudexercitation ullamco.'
-    subtitle = ttk.Label(master=app, text=subtitle_text, font='Arial 11',  padding=(20, 8, 0, 0))
+    subtitle = ttk.Label(master=app, text=subtitle_text, font='Arial 11', padding=(20, 8, 0, 0))
     subtitle.grid(row=2, column=1, sticky='nw')
 
     # Region
     region_title_text = 'Region*'
-    region_title = ttk.Label(master=app, text=region_title_text, font='Arial 20 bold',  padding=(20, 15, 0, 0))
+    region_title = ttk.Label(master=app, text=region_title_text, font='Arial 20 bold', padding=(20, 15, 0, 0))
     region_title.grid(row=3, column=1, sticky='nw')
 
     region_subtitle_text = 'In which region are you considering making investments?'
     padd = (20, 5, 0, 0)
-    region_subtitle = ttk.Label(master=app, text=region_subtitle_text, font=('Arial', 12, 'italic'),  padding=padd)
+    region_subtitle = ttk.Label(master=app, text=region_subtitle_text, font=('Arial', 12, 'italic'), padding=padd)
     region_subtitle.grid(row=4, column=1, sticky='nw')
 
     region_values = ['Americas', 'Africa', 'Asia', 'Europe', 'Oceania']
@@ -300,11 +288,11 @@ def run():
 
     # Developed or Emerging
     dev_title_text = 'Economic Development Status*'
-    dev_title = ttk.Label(master=app, text=dev_title_text, font='Arial 20 bold',  padding=(20, 15, 0, 0))
+    dev_title = ttk.Label(master=app, text=dev_title_text, font='Arial 20 bold', padding=(20, 15, 0, 0))
     dev_title.grid(row=6, column=1, sticky='nw')
 
     dev_subtitle_text = 'Do you have a preference for investing in developed or emerging countries?'
-    dev_subtitle = ttk.Label(master=app, text=dev_subtitle_text, font=('Arial', 12, 'italic'),  padding=(20, 5, 0, 0))
+    dev_subtitle = ttk.Label(master=app, text=dev_subtitle_text, font=('Arial', 12, 'italic'), padding=(20, 5, 0, 0))
     dev_subtitle.grid(row=7, column=1, sticky='nw')
 
     dev_values = ['Developed', 'Emerging']
@@ -315,11 +303,11 @@ def run():
     # Investment Terms
 
     inv_title_text = 'Investment Terms*'
-    inv_title = ttk.Label(master=app, text=inv_title_text, font='Arial 20 bold',  padding=(20, 15, 0, 0))
+    inv_title = ttk.Label(master=app, text=inv_title_text, font='Arial 20 bold', padding=(20, 15, 0, 0))
     inv_title.grid(row=9, column=1, sticky='nw')
 
     inv_subtitle_text = "What's your investment horizon: short-term or long-term?"
-    inv_subtitle = ttk.Label(master=app, text=inv_subtitle_text, font=('Arial', 12, 'italic'),  padding=(20, 5, 0, 0))
+    inv_subtitle = ttk.Label(master=app, text=inv_subtitle_text, font=('Arial', 12, 'italic'), padding=(20, 5, 0, 0))
     inv_subtitle.grid(row=10, column=1, sticky='nw')
 
     inv_values = ['Long Run', 'Short Run']
@@ -329,11 +317,11 @@ def run():
 
     # Industries
     ind_title_text = 'Sector*'
-    ind_title = ttk.Label(master=app, text=ind_title_text, font='Arial 20 bold',  padding=(20, 15, 0, 0))
+    ind_title = ttk.Label(master=app, text=ind_title_text, font='Arial 20 bold', padding=(20, 15, 0, 0))
     ind_title.grid(row=12, column=1, sticky='nw')
 
     ind_subtitle_text = 'Which sectors are of interest to you for potential investment?'
-    ind_subtitle = ttk.Label(master=app, text=ind_subtitle_text, font=('Arial', 12, 'italic'),  padding=(20, 5, 0, 0))
+    ind_subtitle = ttk.Label(master=app, text=ind_subtitle_text, font=('Arial', 12, 'italic'), padding=(20, 5, 0, 0))
     ind_subtitle.grid(row=13, column=1, sticky='nw')
 
     ind_values = ['Primary', 'Secondary', 'Tertiary']
@@ -343,19 +331,19 @@ def run():
 
     # Ethical Priority
     ethics_title_text = 'Ethical Priority*'
-    ethics_title = ttk.Label(master=app, text=ethics_title_text, font='Arial 20 bold',  padding=(20, 15, 0, 0))
+    ethics_title = ttk.Label(master=app, text=ethics_title_text, font='Arial 20 bold', padding=(20, 15, 0, 0))
     ethics_title.grid(row=15, column=1, sticky='nw')
 
     ethics_subtitle1 = 'Please prioritize the following three categories\n'
     ethics_subtitle_text = ethics_subtitle1 + '(1 indicating the highest priority and 3 the lowest priority.)'
     padd_e = (20, 5, 0, 0)
-    ethics_subtitle = ttk.Label(master=app, text=ethics_subtitle_text, font=('Arial', 12, 'italic'),  padding=padd_e)
+    ethics_subtitle = ttk.Label(master=app, text=ethics_subtitle_text, font=('Arial', 12, 'italic'), padding=padd_e)
     ethics_subtitle.grid(row=16, column=1, sticky='nw')
     ranks = ['1', '2', '3']
 
     # Ethic 1: Environment
     env_subtitle_text = 'Environment'
-    env_subtitle = ttk.Label(master=app, text=env_subtitle_text, font=('Arial', 16),  padding=(20, 10, 0, 0))
+    env_subtitle = ttk.Label(master=app, text=env_subtitle_text, font=('Arial', 16), padding=(20, 10, 0, 0))
     env_subtitle.grid(row=17, column=1, sticky='nw')
     env_combo = ttk.Combobox(master=app, values=ranks, state='readonly', width=10)
     env_combo.set('Rank')
@@ -363,7 +351,7 @@ def run():
 
     # Ethic 2: Equity Score
     equi_subtitle_text = 'Equity'
-    equi_subtitle = ttk.Label(master=app, text=equi_subtitle_text, font=('Arial', 16),  padding=(20, 15, 0, 0))
+    equi_subtitle = ttk.Label(master=app, text=equi_subtitle_text, font=('Arial', 16), padding=(20, 15, 0, 0))
     equi_subtitle.grid(row=18, column=1, sticky='nw')
     equi_combo = ttk.Combobox(master=app, values=ranks, state='readonly', width=10)
     equi_combo.set('Rank')
@@ -371,7 +359,7 @@ def run():
 
     # Ethic 3: Fair Labour Treatment
     flt_subtitle_text = 'Fair Labour Treatment'
-    flt_subtitle = ttk.Label(master=app, text=flt_subtitle_text, font=('Arial', 16),  padding=(20, 15, 0, 0))
+    flt_subtitle = ttk.Label(master=app, text=flt_subtitle_text, font=('Arial', 16), padding=(20, 15, 0, 0))
     flt_subtitle.grid(row=19, column=1, sticky='nw')
     flt_combo = ttk.Combobox(master=app, values=ranks, state='readonly', width=10)
     flt_combo.set('Rank')
@@ -383,10 +371,10 @@ def run():
 
     # Help
     help_text = 'Any term you do not understand? please select it and press the Help button'
-    help_subtitle = ttk.Label(master=app, text=help_text, font=('Arial', 13),  padding=(20, 20, 0, 0))
+    help_subtitle = ttk.Label(master=app, text=help_text, font=('Arial', 13), padding=(20, 20, 0, 0))
     help_subtitle.grid(row=21, column=1, sticky='nw')
     terms = ['Economic Development Status', 'Investment Terms', 'Sector', 'Developed', 'Emerging', 'Primary',
-             'Secondary', 'Tertiary', 'Long Term', 'Short Term', 'Equity', 'Fair Labour Treatment']
+             'Secondary', 'Tertiary', 'Long Run', 'Short Run', 'Equity', 'Fair Labour Treatment']
     help_combo = ttk.Combobox(master=app, values=terms, state='readonly', width=37)
     help_combo.set('Select')
     help_combo.grid(row=22, column=1, sticky='nw', padx=(18, 100), pady=(5, 0))
@@ -398,3 +386,9 @@ def run():
 
 if __name__ == "__main__":
     run()
+    import python_ta
+    python_ta.check_all(config={
+        'extra-imports': ['tkinter', 'matplotlib.backends.backend_tkagg', 'matplotlib.pyplot', 'treetry', 'load_data'],
+        'allowed-io': [],
+        'max-line-length': 120
+    })

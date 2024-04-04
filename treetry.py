@@ -383,6 +383,7 @@ def main_func(country_info_df, sectors_info, gdp_info, sdg_information, priority
     recurse = 0
     if not unranked_countries:
         new_country_list = search_country(criteria, dt, [], 0)
+        # new_country_list = []
         if not new_country_list:
             top_5_countries = sorted(country_scores_dict.items(), key=lambda x: x[1], reverse=True)[:5]
             output = {}
@@ -399,3 +400,12 @@ def main_func(country_info_df, sectors_info, gdp_info, sdg_information, priority
         for country in unranked_countries:
             output[country] = [country_scores_dict[country], ethical_score(priority, sdg_information[country])]
     return [output, recurse]
+
+
+if __name__ == "__main__":
+    import python_ta
+    python_ta.check_all(config={
+        'extra-imports': [],
+        'allowed-io': [],
+        'max-line-length': 120
+    })
